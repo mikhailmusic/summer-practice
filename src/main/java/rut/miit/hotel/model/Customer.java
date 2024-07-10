@@ -12,9 +12,7 @@ public class Customer extends BaseEntity {
     private String lastName;
     private String email;
     private String phoneNumber;
-
-    // 1 - male, 0 - female
-    private boolean gender;
+    private boolean gender;         // 1 - male, 0 - female
     private LocalDate birthDate;
     private List<Booking> bookings;
 

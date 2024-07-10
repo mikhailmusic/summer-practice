@@ -1,11 +1,9 @@
 package rut.miit.hotel.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "hotel_services")
 public class HotelService extends BaseEntity {
     private Integer price;
     private String description;
