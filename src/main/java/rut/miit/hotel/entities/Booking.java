@@ -16,9 +16,9 @@ public class Booking extends BaseEntity {
     private Room room;
     private Customer customer;
     private List<Payment> payments;
-    private List<BookingService> bookingServices;
+    private List<BookingOption> bookingOptions;
 
-    public Booking(OffsetDateTime createdAt, LocalDate startDate, LocalDate endDate, Room room, Customer customer, List<Payment> payments, List<BookingService> bookingServices) {
+    public Booking(LocalDate startDate, LocalDate endDate, Room room, Customer customer, List<Payment> payments, List<BookingOption> bookingOptions) {
         this.createdAt = OffsetDateTime.now();
         this.startDate = startDate;
         this.endDate = endDate;
@@ -26,7 +26,7 @@ public class Booking extends BaseEntity {
         this.room = room;
         this.customer = customer;
         this.payments = payments;
-        this.bookingServices = bookingServices;
+        this.bookingOptions = bookingOptions;
     }
 
     protected Booking() {
@@ -70,8 +70,8 @@ public class Booking extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    public List<BookingService> getBookingServices() {
-        return bookingServices;
+    public List<BookingOption> getBookingOptions() {
+        return bookingOptions;
     }
 
     public void setCreatedAt(OffsetDateTime createdAt) {
@@ -102,7 +102,7 @@ public class Booking extends BaseEntity {
         this.payments = payments;
     }
 
-    public void setBookingServices(List<BookingService> bookingServices) {
-        this.bookingServices = bookingServices;
+    public void setBookingOptions(List<BookingOption> bookingOptions) {
+        this.bookingOptions = bookingOptions;
     }
 }

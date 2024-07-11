@@ -18,9 +18,9 @@ public class Hotel extends BaseEntity {
     private String buildingNumber;  // Example: 42/1, 12A
     private String postcode;        // Example: EC2M7QH (London)
     private List<Room> rooms;
-    private List<HotelService> hotelServices;
+    private List<HotelOption> hotelOptions;
 
-    public Hotel(String name, Byte rating, String phoneNumber, String email, String description, String country, String city, String street, String buildingNumber, String postcode, List<Room> rooms, List<HotelService> hotelServices) {
+    public Hotel(String name, Byte rating, String phoneNumber, String email, String description, String country, String city, String street, String buildingNumber, String postcode, List<Room> rooms, List<HotelOption> hotelOptions) {
         this.name = name;
         this.rating = rating;
         this.phoneNumber = phoneNumber;
@@ -32,7 +32,7 @@ public class Hotel extends BaseEntity {
         this.buildingNumber = buildingNumber;
         this.postcode = postcode;
         this.rooms = rooms;
-        this.hotelServices = hotelServices;
+        this.hotelOptions = hotelOptions;
     }
 
     protected Hotel() {
@@ -94,8 +94,8 @@ public class Hotel extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
-    public List<HotelService> getHotelServices() {
-        return hotelServices;
+    public List<HotelOption> getHotelOptions() {
+        return hotelOptions;
     }
 
     public void setName(String name) {
@@ -142,7 +142,7 @@ public class Hotel extends BaseEntity {
         this.rooms = rooms;
     }
 
-    public void setHotelServices(List<HotelService> hotelServices) {
-        this.hotelServices = hotelServices;
+    public void setHotelOptions(List<HotelOption> hotelOptions) {
+        this.hotelOptions = hotelOptions;
     }
 }

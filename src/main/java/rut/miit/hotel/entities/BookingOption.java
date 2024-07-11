@@ -1,28 +1,28 @@
 package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.entities.keys.BookingServiceKey;
+import rut.miit.hotel.entities.keys.BookingOptionKey;
 
 @Entity
-@Table(name = "booking_services")
-public class BookingService {
-    private BookingServiceKey id;
+@Table(name = "booking_options")
+public class BookingOption {
+    private BookingOptionKey id;
     private Booking booking;
-    private Service service;
+    private Option option;
     private Byte count;
 
-    public BookingService(BookingServiceKey id, Booking booking, Service service, Byte count) {
+    public BookingOption(BookingOptionKey id, Booking booking, Option option, Byte count) {
         this.id = id;
         this.booking = booking;
-        this.service = service;
+        this.option = option;
         this.count = count;
     }
 
-    protected BookingService() {
+    protected BookingOption() {
     }
 
     @EmbeddedId
-    public BookingServiceKey getId() {
+    public BookingOptionKey getId() {
         return id;
     }
 
@@ -33,11 +33,11 @@ public class BookingService {
         return booking;
     }
 
-    @MapsId("serviceId")
+    @MapsId("optionId")
     @ManyToOne(optional = false)
-    @JoinColumn(name = "service_id", nullable = false)
-    public Service getService() {
-        return service;
+    @JoinColumn(name = "option_id", nullable = false)
+    public Option getOption() {
+        return option;
     }
 
     @Column(name = "count")
@@ -45,7 +45,7 @@ public class BookingService {
         return count;
     }
 
-    public void setId(BookingServiceKey id) {
+    public void setId(BookingOptionKey id) {
         this.id = id;
     }
 
@@ -53,8 +53,8 @@ public class BookingService {
         this.booking = booking;
     }
 
-    public void setService(Service service) {
-        this.service = service;
+    public void setOption(Option option) {
+        this.option = option;
     }
 
     public void setCount(Byte count) {

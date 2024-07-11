@@ -6,36 +6,36 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class BookingServiceKey implements Serializable {
+public class BookingOptionKey implements Serializable {
     private Integer bookingId;
-    private Integer serviceId;
+    private Integer optionId;
 
     public Integer getBookingId() {
         return bookingId;
     }
 
-    public Integer getServiceId() {
-        return serviceId;
+    public Integer getOptionId() {
+        return optionId;
     }
 
     public void setBookingId(Integer bookingId) {
         this.bookingId = bookingId;
     }
 
-    public void setServiceId(Integer serviceId) {
-        this.serviceId = serviceId;
+    public void setOptionId(Integer optionId) {
+        this.optionId = optionId;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BookingServiceKey that = (BookingServiceKey) o;
-        return Objects.equals(bookingId, that.bookingId) && Objects.equals(serviceId, that.serviceId);
+        BookingOptionKey that = (BookingOptionKey) o;
+        return Objects.equals(bookingId, that.bookingId) && Objects.equals(optionId, that.optionId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(bookingId, serviceId);
+        return Objects.hash(bookingId, optionId);
     }
 }

@@ -1,30 +1,30 @@
 package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.entities.keys.HotelServiceKey;
+import rut.miit.hotel.entities.keys.HotelOptionKey;
 
 @Entity
-@Table(name = "hotel_services")
-public class HotelService {
-    private HotelServiceKey id;
+@Table(name = "hotel_options")
+public class HotelOption {
+    private HotelOptionKey id;
     private Integer price;
     private String description;
     private Hotel hotel;
-    private Service service;
+    private Option option;
 
-    public HotelService(HotelServiceKey id, Integer price, String description, Hotel hotel, Service service) {
+    public HotelOption(HotelOptionKey id, Integer price, String description, Hotel hotel, Option option) {
         this.id = id;
         this.price = price;
         this.description = description;
         this.hotel = hotel;
-        this.service = service;
+        this.option = option;
     }
 
-    protected HotelService() {
+    protected HotelOption() {
     }
 
     @EmbeddedId
-    public HotelServiceKey getId() {
+    public HotelOptionKey getId() {
         return id;
     }
 
@@ -45,14 +45,14 @@ public class HotelService {
         return hotel;
     }
 
-    @MapsId("serviceId")
+    @MapsId("optionId")
     @ManyToOne(optional = false)
-    @JoinColumn(name = "service_id", nullable = false)
-    public Service getService() {
-        return service;
+    @JoinColumn(name = "option_id", nullable = false)
+    public Option getOption() {
+        return option;
     }
 
-    public void setId(HotelServiceKey id) {
+    public void setId(HotelOptionKey id) {
         this.id = id;
     }
 
@@ -68,7 +68,7 @@ public class HotelService {
         this.hotel = hotel;
     }
 
-    public void setService(Service service) {
-        this.service = service;
+    public void setOption(Option option) {
+        this.option = option;
     }
 }
