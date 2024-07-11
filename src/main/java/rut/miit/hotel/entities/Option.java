@@ -9,12 +9,10 @@ import java.util.List;
 public class Option extends BaseEntity {
     private String name;
     private List<HotelOption> hotelOptions;
-    private List<BookingOption> bookingOptions;
 
-    public Option(String name, List<HotelOption> hotelOptions, List<BookingOption> bookingOptions) {
+    public Option(String name, List<HotelOption> hotelOptions) {
         this.name = name;
         this.hotelOptions = hotelOptions;
-        this.bookingOptions = bookingOptions;
     }
 
     protected Option() {
@@ -30,11 +28,6 @@ public class Option extends BaseEntity {
         return hotelOptions;
     }
 
-    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
-    public List<BookingOption> getBookingOptions() {
-        return bookingOptions;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -43,7 +36,4 @@ public class Option extends BaseEntity {
         this.hotelOptions = hotelOptions;
     }
 
-    public void setBookingOptions(List<BookingOption> bookingOptions) {
-        this.bookingOptions = bookingOptions;
-    }
 }

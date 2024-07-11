@@ -1,31 +1,34 @@
 package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.entities.keys.HotelOptionKey;
+
+import java.util.List;
 
 @Entity
 @Table(name = "hotel_options")
-public class HotelOption {
-    private HotelOptionKey id;
+public class HotelOption extends BaseEntity {
+    private String fullName;
     private Integer price;
     private String description;
     private Hotel hotel;
     private Option option;
+    private List<BookingOption> bookingOptions;
 
-    public HotelOption(HotelOptionKey id, Integer price, String description, Hotel hotel, Option option) {
-        this.id = id;
+    public HotelOption(String fullName, Integer price, String description, Hotel hotel, Option option, List<BookingOption> bookingOptions) {
+        this.fullName = fullName;
         this.price = price;
         this.description = description;
         this.hotel = hotel;
         this.option = option;
+        this.bookingOptions = bookingOptions;
     }
 
     protected HotelOption() {
     }
 
-    @EmbeddedId
-    public HotelOptionKey getId() {
-        return id;
+    @Column(name = "full_name", nullable = false)
+    public String getFullName() {
+        return fullName;
     }
 
     @Column(name = "price", nullable = false)
@@ -38,22 +41,25 @@ public class HotelOption {
         return description;
     }
 
-    @MapsId("hotelId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "hotel_id", nullable = false)
     public Hotel getHotel() {
         return hotel;
     }
 
-    @MapsId("optionId")
     @ManyToOne(optional = false)
     @JoinColumn(name = "option_id", nullable = false)
     public Option getOption() {
         return option;
     }
 
-    public void setId(HotelOptionKey id) {
-        this.id = id;
+    @OneToMany(mappedBy = "hotelOption")
+    public List<BookingOption> getBookingOptions() {
+        return bookingOptions;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public void setPrice(Integer price) {
@@ -70,5 +76,9 @@ public class HotelOption {
 
     public void setOption(Option option) {
         this.option = option;
+    }
+
+    public void setBookingOptions(List<BookingOption> bookingOptions) {
+        this.bookingOptions = bookingOptions;
     }
 }
