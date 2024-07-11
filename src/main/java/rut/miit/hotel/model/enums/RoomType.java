@@ -1,6 +1,0 @@
-package rut.miit.hotel.model.enums;
-
-public enum RoomType {
-    STANDARD, SUPERIOR, BEDROOM, APARTMENT, STUDIO, FAMILY_ROOM, FAMILY_STUDIO,
-    DELUX, SUITE, PRESIDENT, BUSINESS_ROOM, HONEYMOON_ROOM
-}

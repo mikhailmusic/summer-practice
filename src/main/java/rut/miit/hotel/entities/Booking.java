@@ -1,7 +1,6 @@
-package rut.miit.hotel.model;
+package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -19,7 +18,20 @@ public class Booking extends BaseEntity {
     private List<Payment> payments;
     private List<BookingService> bookingServices;
 
-    @CreationTimestamp
+    public Booking(OffsetDateTime createdAt, LocalDate startDate, LocalDate endDate, Room room, Customer customer, List<Payment> payments, List<BookingService> bookingServices) {
+        this.createdAt = OffsetDateTime.now();
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isBooked = false;
+        this.room = room;
+        this.customer = customer;
+        this.payments = payments;
+        this.bookingServices = bookingServices;
+    }
+
+    protected Booking() {
+    }
+
     @Column(name = "created_at",updatable = false, nullable = false)
     public OffsetDateTime getCreatedAt() {
         return createdAt;
@@ -40,7 +52,6 @@ public class Booking extends BaseEntity {
         return isBooked;
     }
 
-    // default FetchType.EAGER
     @ManyToOne(optional = false)
     @JoinColumn(name = "room_id", nullable = false)
     public Room getRoom() {
@@ -53,7 +64,6 @@ public class Booking extends BaseEntity {
         return customer;
     }
 
-    // default FetchType.LAZY
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     public List<Payment> getPayments() {
         return payments;

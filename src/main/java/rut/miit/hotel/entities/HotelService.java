@@ -1,7 +1,7 @@
-package rut.miit.hotel.model;
+package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.model.keys.HotelServiceKey;
+import rut.miit.hotel.entities.keys.HotelServiceKey;
 
 @Entity
 @Table(name = "hotel_services")
@@ -11,6 +11,17 @@ public class HotelService {
     private String description;
     private Hotel hotel;
     private Service service;
+
+    public HotelService(HotelServiceKey id, Integer price, String description, Hotel hotel, Service service) {
+        this.id = id;
+        this.price = price;
+        this.description = description;
+        this.hotel = hotel;
+        this.service = service;
+    }
+
+    protected HotelService() {
+    }
 
     @EmbeddedId
     public HotelServiceKey getId() {

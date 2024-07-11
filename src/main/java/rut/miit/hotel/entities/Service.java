@@ -1,4 +1,4 @@
-package rut.miit.hotel.model;
+package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
 
@@ -11,7 +11,16 @@ public class Service extends BaseEntity {
     private List<HotelService> hotelServices;
     private List<BookingService> bookingServices;
 
-    @Column(name = "name", nullable = false)
+    public Service(String name, List<HotelService> hotelServices, List<BookingService> bookingServices) {
+        this.name = name;
+        this.hotelServices = hotelServices;
+        this.bookingServices = bookingServices;
+    }
+
+    protected Service() {
+    }
+
+    @Column(name = "name", nullable = false, unique = true)
     public String getName() {
         return name;
     }

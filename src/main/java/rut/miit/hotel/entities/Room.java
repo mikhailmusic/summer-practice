@@ -1,7 +1,6 @@
-package rut.miit.hotel.model;
+package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.model.enums.RoomType;
 
 import java.util.List;
 
@@ -20,6 +19,21 @@ public class Room extends BaseEntity {
     private Hotel hotel;
     private List<Booking> bookings;
 
+    public Room(Integer roomNumber, Byte capacity, Integer pricePerNight, RoomType type, Byte numberOfRooms, String description, boolean isFunctional, Hotel hotel, List<Booking> bookings) {
+        this.roomNumber = roomNumber;
+        this.capacity = capacity;
+        this.pricePerNight = pricePerNight;
+        this.type = type;
+        this.numberOfRooms = numberOfRooms;
+        this.description = description;
+        this.isFunctional = isFunctional;
+        this.hotel = hotel;
+        this.bookings = bookings;
+    }
+
+    protected Room() {
+    }
+
     @Column(name = "room_number", nullable = false)
     public Integer getRoomNumber() {
         return roomNumber;
@@ -35,8 +49,8 @@ public class Room extends BaseEntity {
         return pricePerNight;
     }
 
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "type_id")
     public RoomType getType() {
         return type;
     }

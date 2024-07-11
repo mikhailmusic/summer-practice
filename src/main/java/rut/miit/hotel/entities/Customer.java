@@ -1,4 +1,4 @@
-package rut.miit.hotel.model;
+package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
 
@@ -15,6 +15,19 @@ public class Customer extends BaseEntity {
     private boolean gender;         // 1 - male, 0 - female
     private LocalDate birthDate;
     private List<Booking> bookings;
+
+    public Customer(String firstName, String lastName, String email, String phoneNumber, boolean gender, LocalDate birthDate, List<Booking> bookings) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
+        this.birthDate = birthDate;
+        this.bookings = bookings;
+    }
+
+    protected Customer() {
+    }
 
     @Column(name = "first_name", nullable = false)
     public String getFirstName() {

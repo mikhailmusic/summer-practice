@@ -1,7 +1,7 @@
-package rut.miit.hotel.model;
+package rut.miit.hotel.entities;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.model.enums.PaymentStatus;
+import rut.miit.hotel.entities.enums.PaymentStatus;
 
 import java.time.OffsetDateTime;
 
@@ -14,6 +14,18 @@ public class Payment extends BaseEntity {
     private Long bankAccount;
     private PaymentStatus status;
     private Booking booking;
+
+    public Payment(Long amount, OffsetDateTime dateOfPayment, String bankName, Long bankAccount, Booking booking) {
+        this.amount = amount;
+        this.dateOfPayment = dateOfPayment;
+        this.bankName = bankName;
+        this.bankAccount = bankAccount;
+        this.status = PaymentStatus.CREATED;
+        this.booking = booking;
+    }
+
+    protected Payment() {
+    }
 
     @Column(name = "amount", nullable = false)
     public Long getAmount() {
