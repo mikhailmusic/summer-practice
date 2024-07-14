@@ -39,7 +39,7 @@ public class Customer extends BaseEntity {
         return lastName;
     }
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     public String getEmail() {
         return email;
     }
