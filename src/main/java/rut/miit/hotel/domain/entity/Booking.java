@@ -1,31 +1,34 @@
-package rut.miit.hotel.entities;
+package rut.miit.hotel.domain.entity;
 
 import jakarta.persistence.*;
+import rut.miit.hotel.domain.entity.status.BookingStatus;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "bookings")
 public class Booking extends BaseEntity {
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
     private LocalDate startDate;
     private LocalDate endDate;
-    private boolean isBooked;
+    private BookingStatus bookingStatus;
     private Room room;
     private Customer customer;
     private List<Payment> payments;
     private List<BookingOption> bookingOptions;
 
-    public Booking(LocalDate startDate, LocalDate endDate, Room room, Customer customer, List<Payment> payments, List<BookingOption> bookingOptions) {
-        this.createdAt = OffsetDateTime.now();
+    public static final int MAX_BOOKING_DAYS = 90;
+    public static final int MAX_COUNT_OPTION = 10;
+
+    public Booking(LocalDate startDate, LocalDate endDate, Room room, Customer customer, List<BookingOption> bookingOptions) {
+        this.createdAt = LocalDateTime.now();
         this.startDate = startDate;
         this.endDate = endDate;
-        this.isBooked = false;
+        this.bookingStatus = BookingStatus.CREATED;
         this.room = room;
         this.customer = customer;
-        this.payments = payments;
         this.bookingOptions = bookingOptions;
     }
 
@@ -33,7 +36,7 @@ public class Booking extends BaseEntity {
     }
 
     @Column(name = "created_at",updatable = false, nullable = false)
-    public OffsetDateTime getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
@@ -47,9 +50,10 @@ public class Booking extends BaseEntity {
         return endDate;
     }
 
-    @Column(name = "booked")
-    public boolean isBooked() {
-        return isBooked;
+    @Column(name = "booking_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
     }
 
     @ManyToOne(optional = false)
@@ -74,7 +78,7 @@ public class Booking extends BaseEntity {
         return bookingOptions;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -86,8 +90,8 @@ public class Booking extends BaseEntity {
         this.endDate = endDate;
     }
 
-    public void setBooked(boolean booked) {
-        isBooked = booked;
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
     }
 
     public void setRoom(Room room) {

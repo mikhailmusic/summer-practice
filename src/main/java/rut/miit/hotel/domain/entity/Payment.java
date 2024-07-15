@@ -1,25 +1,30 @@
-package rut.miit.hotel.entities;
+package rut.miit.hotel.domain.entity;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.entities.enums.PaymentStatus;
+import rut.miit.hotel.domain.entity.status.PaymentStatus;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
 public class Payment extends BaseEntity {
-    private Long amount;
-    private OffsetDateTime dateOfPayment;
+    private Double amount;
+    private LocalDateTime dateOfPayment;
     private String bankName;
     private Long bankAccount;
     private PaymentStatus status;
     private Booking booking;
 
-    public Payment(Long amount, OffsetDateTime dateOfPayment, String bankName, Long bankAccount, Booking booking) {
+    public Payment(Double amount, String bankName, Long bankAccount, Booking booking) {
         this.amount = amount;
-        this.dateOfPayment = dateOfPayment;
         this.bankName = bankName;
         this.bankAccount = bankAccount;
+        this.status = PaymentStatus.CREATED;
+        this.booking = booking;
+    }
+
+    public Payment(Double amount, Booking booking) {
+        this.amount = amount;
         this.status = PaymentStatus.CREATED;
         this.booking = booking;
     }
@@ -28,12 +33,12 @@ public class Payment extends BaseEntity {
     }
 
     @Column(name = "amount", nullable = false)
-    public Long getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    @Column(name = "date_payment", nullable = false)
-    public OffsetDateTime getDateOfPayment() {
+    @Column(name = "date_payment")
+    public LocalDateTime getDateOfPayment() {
         return dateOfPayment;
     }
 
@@ -59,11 +64,11 @@ public class Payment extends BaseEntity {
         return booking;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 
-    public void setDateOfPayment(OffsetDateTime dateOfPayment) {
+    public void setDateOfPayment(LocalDateTime dateOfPayment) {
         this.dateOfPayment = dateOfPayment;
     }
 

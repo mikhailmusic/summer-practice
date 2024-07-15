@@ -1,4 +1,4 @@
-package rut.miit.hotel.entities;
+package rut.miit.hotel.domain.entity;
 
 import jakarta.persistence.*;
 

@@ -1,4 +1,4 @@
-package rut.miit.hotel.entities;
+package rut.miit.hotel.domain.entity;
 
 import jakarta.persistence.*;
 
@@ -15,7 +15,7 @@ public class Room extends BaseEntity {
     private String description;
 
     // This flag can be set to false in case the room is out of order (e.g., due to maintenance issues or damages)
-    private boolean isFunctional = true;
+    private boolean isFunctional;
     private Hotel hotel;
     private List<Booking> bookings;
 
@@ -26,7 +26,7 @@ public class Room extends BaseEntity {
         this.type = type;
         this.numberOfRooms = numberOfRooms;
         this.description = description;
-        this.isFunctional = isFunctional;
+        this.isFunctional = true;
         this.hotel = hotel;
         this.bookings = bookings;
     }
