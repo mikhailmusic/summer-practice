@@ -2,10 +2,19 @@ package rut.miit.hotel.dto.response;
 
 
 public class HotelOptionResponseDto {
+    private Integer id;
     private String fullName;
     private Integer price;
     private String description;
     private String optionName;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getFullName() {
         return fullName;

@@ -19,6 +19,6 @@ public interface BookingDomainService {
     boolean isBookingExpired(Booking booking);
     Double calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions);
     void payPayment(PaymentRequestDto paymentRequestDto);
-    PaymentResponseDto cancelBooking(Integer booking);
+    BookingResponseDto cancelBooking(Integer booking);
 
 }

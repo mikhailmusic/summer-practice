@@ -11,7 +11,6 @@ public class PaymentResponseDto {
     private String bankName;
     private String bankAccount;
     private PaymentStatus status;
-    private Integer bookingId;
 
     public Integer getId() {
         return id;
@@ -61,11 +60,4 @@ public class PaymentResponseDto {
         this.status = status;
     }
 
-    public Integer getBookingId() {
-        return bookingId;
-    }
-
-    public void setBookingId(Integer bookingId) {
-        this.bookingId = bookingId;
-    }
 }

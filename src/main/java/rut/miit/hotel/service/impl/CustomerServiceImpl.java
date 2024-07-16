@@ -27,7 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponseDto findCustomer(Integer id) {
-        return modelMapper.map(customerRepository.findById(id).stream(), CustomerResponseDto.class);
+        return modelMapper.map(customerRepository.findById(id), CustomerResponseDto.class);
     }
 
     @Override

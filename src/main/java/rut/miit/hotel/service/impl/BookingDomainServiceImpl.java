@@ -1,6 +1,7 @@
 package rut.miit.hotel.service.impl;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rut.miit.hotel.domain.*;
@@ -10,7 +11,6 @@ import rut.miit.hotel.dto.request.BookingOptionRequestDto;
 import rut.miit.hotel.dto.request.BookingRequestDto;
 import rut.miit.hotel.dto.request.PaymentRequestDto;
 import rut.miit.hotel.dto.response.BookingResponseDto;
-import rut.miit.hotel.dto.response.PaymentResponseDto;
 import rut.miit.hotel.exception.NotFoundException;
 import rut.miit.hotel.exception.ValidationException;
 import rut.miit.hotel.repositories.*;
@@ -85,7 +85,9 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         booking.setBookingOptions(bookingOptions);
         booking.setPayments(List.of(payment));
 
-        return modelMapper.map(bookingRepository.save(booking), BookingResponseDto.class);
+        TypeMap<Booking, BookingResponseDto> typemap = modelMapper.createTypeMap(Booking.class, BookingResponseDto.class);
+        typemap.addMapping(Booking::getPayments, BookingResponseDto::setPayments);
+        return typemap.map(booking);
     }
 
     @Override
@@ -94,7 +96,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         if (!overlappingBookings.isEmpty()) {
             throw new ValidationException("Customer already has a booking in the selected period");
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -134,7 +136,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     @Override
     @Transactional
-    public PaymentResponseDto cancelBooking(Integer bookingId) {
+    public BookingResponseDto cancelBooking(Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Booking not found"));
 
         LocalDateTime nowDate = LocalDateTime.now();
@@ -143,44 +145,50 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         boolean isWithinTimeFrame = nowDate.plusHours(FREE_CANCEL_HOURS).isBefore(startDate);
         boolean isBookingExpired = nowDate.isAfter(booking.getEndDate().atTime(booking.getRoom().getHotel().getCheckOutTime()));
 
-        Payment payment;
         if (!isBookingExpired) {
 
-            if (isWithinTimeFrame) {
+            if (!isWithinTimeFrame) {
                 double pricePerNight = booking.getRoom().getPricePerNight();
                 long days = ChronoUnit.DAYS.between(nowDate, startDate);
-                payment = refundPayment(booking, pricePerNight * (days + PENALTY_DAYS));
+                refundPayment(booking, pricePerNight * (days + PENALTY_DAYS));
 
             } else {
-                payment = refundPayment(booking, 0);
+                 refundPayment(booking, 0);
             }
             booking.setBookingStatus(BookingStatus.CANCELED);
             bookingRepository.save(booking);
         }
         else throw new ValidationException("Booking cannot be refunded as the booking period has ended.");
-        return modelMapper.map(payment, PaymentResponseDto.class);
+
+        TypeMap<Booking, BookingResponseDto> typemap = modelMapper.createTypeMap(Booking.class, BookingResponseDto.class);
+        typemap.addMapping(Booking::getPayments, BookingResponseDto::setPayments);
+        return typemap.map(booking);
 
     }
 
     @Transactional
-    protected Payment refundPayment(Booking booking, double penaltyAmount) {
+    protected void refundPayment(Booking booking, double penaltyAmount) {
         Payment oldPayment = paymentRepository.findPaymentsByBookingAndStatuses(booking, List.of(PaymentStatus.COMPLETED)).getFirst();
         Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, oldPayment.getBankName(), oldPayment.getBankAccount(), booking);
         payment.setBooking(booking);
         payment.setDateOfPayment(LocalDateTime.now());
         payment.setStatus(PaymentStatus.RETURNED);
-        return paymentRepository.save(payment);
+        paymentRepository.save(payment);
     }
 
     @Override
     @Transactional
     public void payPayment(PaymentRequestDto paymentRequestDto) {
-        Booking booking = bookingRepository.findById(paymentRequestDto.getBookingId()).orElseThrow(() -> new NotFoundException("Booking not found"));
-        Payment payment = modelMapper.map(paymentRequestDto, Payment.class);
+        Payment payment = paymentRepository.findById(paymentRequestDto.getId()).orElseThrow();
+        if (isBookingExpired(payment.getBooking())) throw new ValidationException("Booking created for specified time has already ended");
+
+        payment.setBankName(paymentRequestDto.getBankName());
+        payment.setBankAccount(paymentRequestDto.getBankAccount());
         payment.setStatus(PaymentStatus.COMPLETED);
         payment.setDateOfPayment(LocalDateTime.now());
         paymentRepository.save(payment);
 
+        Booking booking = payment.getBooking();
         booking.setBookingStatus(BookingStatus.COMPLETED);
         bookingRepository.save(booking);
     }

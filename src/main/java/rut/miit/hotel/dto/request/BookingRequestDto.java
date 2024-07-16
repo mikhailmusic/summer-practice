@@ -9,7 +9,6 @@ public class BookingRequestDto {
     private LocalDate endDate;
     private Integer roomId;
     private Integer customerId;
-    private List<PaymentRequestDto> payments;
     private List<BookingOptionRequestDto> bookingOptions;
 
     public LocalDate getStartDate() {
@@ -42,14 +41,6 @@ public class BookingRequestDto {
 
     public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
-    }
-
-    public List<PaymentRequestDto> getPayments() {
-        return payments;
-    }
-
-    public void setPayments(List<PaymentRequestDto> payments) {
-        this.payments = payments;
     }
 
     public List<BookingOptionRequestDto> getBookingOptions() {

@@ -11,7 +11,6 @@ public class BookingResponseDto {
     private Integer roomId;
     private Integer customerId;
     private List<PaymentResponseDto> payments;
-    private List<BookingOptionResponseDto> bookingOptions;
 
     public Integer getId() {
         return id;
@@ -61,11 +60,4 @@ public class BookingResponseDto {
         this.payments = payments;
     }
 
-    public List<BookingOptionResponseDto> getBookingOptions() {
-        return bookingOptions;
-    }
-
-    public void setBookingOptions(List<BookingOptionResponseDto> bookingOptions) {
-        this.bookingOptions = bookingOptions;
-    }
 }

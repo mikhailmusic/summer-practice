@@ -1,21 +1,17 @@
 package rut.miit.hotel.dto.request;
 
 
-import java.time.LocalDateTime;
-
 public class PaymentRequestDto {
-    private Double amount;
+    private Integer id;
     private String bankName;
     private String bankAccount;
-    private Integer bookingId;
 
-
-    public Double getAmount() {
-        return amount;
+    public Integer getId() {
+        return id;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getBankName() {
@@ -32,13 +28,5 @@ public class PaymentRequestDto {
 
     public void setBankAccount(String bankAccount) {
         this.bankAccount = bankAccount;
-    }
-
-    public Integer getBookingId() {
-        return bookingId;
-    }
-
-    public void setBookingId(Integer bookingId) {
-        this.bookingId = bookingId;
     }
 }
