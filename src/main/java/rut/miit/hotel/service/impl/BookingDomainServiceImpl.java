@@ -85,14 +85,12 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         booking.setBookingOptions(bookingOptions);
         booking.setPayments(List.of(payment));
 
-        TypeMap<Booking, BookingResponseDto> typemap = modelMapper.createTypeMap(Booking.class, BookingResponseDto.class);
-        typemap.addMapping(Booking::getPayments, BookingResponseDto::setPayments);
-        return typemap.map(booking);
+        return modelMapper.map(booking, BookingResponseDto.class);
     }
 
     @Override
     public boolean checkBookings(Customer customer, LocalDate startDate, LocalDate endDate) {
-        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(customer, startDate, endDate);
+        List<Booking> overlappingBookings = bookingRepository.findByCustomerDateRangeStatuses(customer, startDate, endDate, List.of(BookingStatus.COMPLETED));
         if (!overlappingBookings.isEmpty()) {
             throw new ValidationException("Customer already has a booking in the selected period");
         }
@@ -104,7 +102,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         if (!room.isFunctional()) return false;
         List<Booking> bookings = bookingRepository.findBookingsByRoomAndDateRange(room, startDate, endDate);
         for (Booking booking : bookings) {
-            if (booking.getBookingStatus().equals(BookingStatus.COMPLETED) || !isBookingExpired(booking)) {
+            if (booking.getBookingStatus().equals(BookingStatus.COMPLETED) || isBookingExpired(booking)) {
                 return false;
             }
         }
@@ -155,29 +153,35 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         boolean isWithinTimeFrame = nowDate.plusHours(FREE_CANCEL_HOURS).isBefore(startDate);
         boolean isBookingExpired = nowDate.isAfter(booking.getEndDate().atTime(booking.getRoom().getHotel().getCheckOutTime()));
 
-        if (!isBookingExpired) {
-
-            if (!isWithinTimeFrame) {
-                double pricePerNight = booking.getRoom().getPricePerNight();
-                long days = ChronoUnit.DAYS.between(nowDate, startDate);
-                refundPayment(booking, pricePerNight * (days + PENALTY_DAYS));
-
-            } else {
-                 refundPayment(booking, 0);
-            }
-            booking.setBookingStatus(BookingStatus.CANCELED);
-            bookingRepository.save(booking);
+        if (isBookingExpired) {
+            throw new ValidationException("Booking cannot be refunded as the booking period has ended.");
         }
-        else throw new ValidationException("Booking cannot be refunded as the booking period has ended.");
 
-        TypeMap<Booking, BookingResponseDto> typemap = modelMapper.createTypeMap(Booking.class, BookingResponseDto.class);
-        typemap.addMapping(Booking::getPayments, BookingResponseDto::setPayments);
-        return typemap.map(booking);
+        if (!isWithinTimeFrame) {
+            double pricePerNight = booking.getRoom().getPricePerNight();
+            long days = ChronoUnit.DAYS.between(nowDate, startDate);
+            refundPayment(booking, pricePerNight * (days + PENALTY_DAYS));
+
+        } else {
+            refundPayment(booking, 0);
+        }
+
+        booking.setBookingStatus(BookingStatus.CANCELED);
+        bookingRepository.save(booking);
+
+        return modelMapper.map(booking, BookingResponseDto.class);
 
     }
 
     @Transactional
     protected void refundPayment(Booking booking, double penaltyAmount) {
+        if (booking.getBookingStatus().equals(BookingStatus.CREATED)){
+            Payment oldPayment = paymentRepository.findPaymentsByBookingAndStatuses(booking, List.of(PaymentStatus.CREATED)).getFirst();
+            oldPayment.setStatus(PaymentStatus.CANCELED);
+            paymentRepository.save(oldPayment);
+            return;
+        }
+
         Payment oldPayment = paymentRepository.findPaymentsByBookingAndStatuses(booking, List.of(PaymentStatus.COMPLETED)).getFirst();
         Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, oldPayment.getBankName(), oldPayment.getBankAccount(), booking);
         payment.setBooking(booking);
