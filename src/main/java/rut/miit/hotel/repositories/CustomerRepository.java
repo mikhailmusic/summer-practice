@@ -1,14 +1,13 @@
 package rut.miit.hotel.repositories;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+
 import rut.miit.hotel.domain.Customer;
 
-@Repository
-public interface CustomerRepository extends GeneralRepository<Customer, Integer> {
+import java.util.List;
+import java.util.Optional;
 
-    @Query("SELECT c FROM Customer c WHERE c.email = :email")
-    Customer findByEmail(@Param("email") String email);
-
+public interface CustomerRepository {
+    Optional<Customer> findById(Integer id);
+    Customer save(Customer customer);
+    List<Customer> findAll();
 }

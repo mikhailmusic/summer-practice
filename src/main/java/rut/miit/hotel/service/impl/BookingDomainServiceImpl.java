@@ -51,8 +51,8 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     @Override
     @Transactional
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
-        Customer customer = customerRepository.findById(bookingRequestDto.getCustomerId()).orElseThrow(() -> new ValidationException("Customer not found"));
-        Room room = roomRepository.findById(bookingRequestDto.getRoomId()).orElseThrow(() -> new ValidationException("Room not found"));
+        Customer customer = customerRepository.findById(bookingRequestDto.getCustomerId()).orElseThrow(() -> new NotFoundException("Customer not found"));
+        Room room = roomRepository.findById(bookingRequestDto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found"));
         LocalDate startDate = bookingRequestDto.getStartDate();
         LocalDate endDate = bookingRequestDto.getEndDate();
 
@@ -110,15 +110,25 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         }
         return true;
     }
-    // (startDate.isBefore(booking.getEndDate()) && endDate.isAfter(booking.getStartDate()))
-
 
     @Override
     public boolean isBookingExpired(Booking booking) {
         LocalDateTime createdAt = booking.getCreatedAt();
         LocalDateTime currentDateTime = LocalDateTime.now();
-        return booking.getBookingStatus().equals(BookingStatus.CREATED)
+        boolean isExpired = booking.getBookingStatus().equals(BookingStatus.CREATED)
                 && ChronoUnit.MINUTES.between(createdAt, currentDateTime) >= BOOKING_TIMEOUT_MINUTES;
+
+        if (isExpired) {
+            booking.setBookingStatus(BookingStatus.CANCELED);
+            Payment payment = booking.getPayments().getFirst();
+            if (payment != null) {
+                payment.setStatus(PaymentStatus.EXPIRED);
+                paymentRepository.save(payment);
+            }
+            bookingRepository.save(booking);
+        }
+
+        return isExpired;
     }
 
     @Override
@@ -179,7 +189,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     @Override
     @Transactional
     public void payPayment(PaymentRequestDto paymentRequestDto) {
-        Payment payment = paymentRepository.findById(paymentRequestDto.getId()).orElseThrow();
+        Payment payment = paymentRepository.findById(paymentRequestDto.getId()).orElseThrow(() -> new NotFoundException("Payment not found"));
         if (isBookingExpired(payment.getBooking())) throw new ValidationException("Booking created for specified time has already ended");
 
         payment.setBankName(paymentRequestDto.getBankName());

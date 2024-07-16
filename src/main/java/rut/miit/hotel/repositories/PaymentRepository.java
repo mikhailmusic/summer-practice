@@ -1,21 +1,17 @@
 package rut.miit.hotel.repositories;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import rut.miit.hotel.domain.Booking;
 import rut.miit.hotel.domain.Payment;
 import rut.miit.hotel.domain.status.PaymentStatus;
 
 import java.util.List;
+import java.util.Optional;
 
-@Repository
-public interface PaymentRepository extends GeneralRepository<Payment, Integer> {
 
-    @Query("SELECT p FROM Payment p " +
-            "WHERE p.booking = :booking " +
-            "AND p.status IN :statuses")
-    List<Payment> findPaymentsByBookingAndStatuses(
-            @Param("booking") Booking booking,
-            @Param("statuses") List<PaymentStatus> statuses);
+public interface PaymentRepository {
+    Optional<Payment> findById(Integer id);
+    Payment save(Payment payment);
+
+    List<Payment> findPaymentsByBookingAndStatuses(Booking booking, List<PaymentStatus> statuses);
+
 }
