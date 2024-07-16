@@ -1,4 +1,4 @@
-package rut.miit.hotel.domain.entity;
+package rut.miit.hotel.domain;
 
 import jakarta.persistence.*;
 
@@ -50,7 +50,7 @@ public class Customer extends BaseEntity {
     }
 
     @Column(name = "gender", nullable = false)
-    public boolean getGender() {
+    public boolean isGender() {
         return gender;
     }
 

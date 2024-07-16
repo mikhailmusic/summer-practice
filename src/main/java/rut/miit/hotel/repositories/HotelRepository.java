@@ -3,7 +3,7 @@ package rut.miit.hotel.repositories;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import rut.miit.hotel.domain.entity.Hotel;
+import rut.miit.hotel.domain.Hotel;
 
 import java.util.List;
 

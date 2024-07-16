@@ -1,7 +1,7 @@
-package rut.miit.hotel.domain.entity;
+package rut.miit.hotel.domain;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.domain.entity.status.BookingStatus;
+import rut.miit.hotel.domain.status.BookingStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,14 +22,13 @@ public class Booking extends BaseEntity {
     public static final int MAX_BOOKING_DAYS = 90;
     public static final int MAX_COUNT_OPTION = 10;
 
-    public Booking(LocalDate startDate, LocalDate endDate, Room room, Customer customer, List<BookingOption> bookingOptions) {
+    public Booking(LocalDate startDate, LocalDate endDate, Room room, Customer customer) {
         this.createdAt = LocalDateTime.now();
         this.startDate = startDate;
         this.endDate = endDate;
         this.bookingStatus = BookingStatus.CREATED;
         this.room = room;
         this.customer = customer;
-        this.bookingOptions = bookingOptions;
     }
 
     protected Booking() {

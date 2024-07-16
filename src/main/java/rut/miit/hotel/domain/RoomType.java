@@ -1,4 +1,4 @@
-package rut.miit.hotel.domain.entity;
+package rut.miit.hotel.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

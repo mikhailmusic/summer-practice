@@ -1,4 +1,4 @@
-package rut.miit.hotel.domain.entity.status;
+package rut.miit.hotel.domain.status;
 
 public enum PaymentStatus {
     CREATED,

@@ -1,7 +1,7 @@
-package rut.miit.hotel.domain.entity;
+package rut.miit.hotel.domain;
 
 import jakarta.persistence.*;
-import rut.miit.hotel.domain.entity.status.PaymentStatus;
+import rut.miit.hotel.domain.status.PaymentStatus;
 
 import java.time.LocalDateTime;
 
@@ -11,11 +11,11 @@ public class Payment extends BaseEntity {
     private Double amount;
     private LocalDateTime dateOfPayment;
     private String bankName;
-    private Long bankAccount;
+    private String bankAccount;
     private PaymentStatus status;
     private Booking booking;
 
-    public Payment(Double amount, String bankName, Long bankAccount, Booking booking) {
+    public Payment(Double amount, String bankName, String bankAccount, Booking booking) {
         this.amount = amount;
         this.bankName = bankName;
         this.bankAccount = bankAccount;
@@ -42,13 +42,13 @@ public class Payment extends BaseEntity {
         return dateOfPayment;
     }
 
-    @Column(name = "bank_name", nullable = false)
+    @Column(name = "bank_name")
     public String getBankName() {
         return bankName;
     }
 
-    @Column(name = "bank_account", nullable = false)
-    public Long getBankAccount() {
+    @Column(name = "bank_account", length = 34)
+    public String getBankAccount() {
         return bankAccount;
     }
 
@@ -76,7 +76,7 @@ public class Payment extends BaseEntity {
         this.bankName = bankName;
     }
 
-    public void setBankAccount(Long bankAccount) {
+    public void setBankAccount(String bankAccount) {
         this.bankAccount = bankAccount;
     }
 
