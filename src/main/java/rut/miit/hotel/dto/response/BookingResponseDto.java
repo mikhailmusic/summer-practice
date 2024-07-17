@@ -1,6 +1,8 @@
 package rut.miit.hotel.dto.response;
 
 
+import rut.miit.hotel.domain.status.BookingStatus;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -10,6 +12,7 @@ public class BookingResponseDto {
     private LocalDate endDate;
     private Integer roomId;
     private Integer customerId;
+    private BookingStatus bookingStatus;
     private List<PaymentResponseDto> payments;
 
     public Integer getId() {
@@ -52,6 +55,14 @@ public class BookingResponseDto {
         this.customerId = customerId;
     }
 
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
+
     public List<PaymentResponseDto> getPayments() {
         return payments;
     }
@@ -59,5 +70,4 @@ public class BookingResponseDto {
     public void setPayments(List<PaymentResponseDto> payments) {
         this.payments = payments;
     }
-
 }

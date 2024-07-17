@@ -1,7 +1,6 @@
 package rut.miit.hotel.service.impl;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rut.miit.hotel.domain.*;
@@ -25,6 +24,11 @@ import java.util.List;
 
 @Service
 public class BookingDomainServiceImpl implements BookingDomainService {
+    public static final int DISCOUNT_DAYS = 20;
+    public static final int DISCOUNT_PERCENT = 10;
+    public static final int FREE_CANCEL_HOURS = 24;
+    public static final int PENALTY_DAYS = 1;
+    public static final int BOOKING_TIMEOUT_MINUTES = 60;
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
     private final CustomerRepository customerRepository;
@@ -32,11 +36,6 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     private final HotelOptionRepository hotelOptionRepository;
     private final BookingOptionRepository bookingOptionRepository;
     private final ModelMapper modelMapper;
-    public static final int DISCOUNT_DAYS = 20;
-    public static final int DISCOUNT_PERCENT = 10;
-    public static final int FREE_CANCEL_HOURS = 24;
-    public static final int PENALTY_DAYS = 1;
-    public static final int BOOKING_TIMEOUT_MINUTES = 60;
 
     public BookingDomainServiceImpl(BookingRepository bookingRepository, PaymentRepository paymentRepository, CustomerRepository customerRepository, RoomRepository roomRepository, HotelOptionRepository hotelOptionRepository, BookingOptionRepository bookingOptionRepository, ModelMapper modelMapper) {
         this.bookingRepository = bookingRepository;

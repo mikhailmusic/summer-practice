@@ -5,6 +5,7 @@ import rut.miit.hotel.domain.status.BookingStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Entity
@@ -20,9 +21,10 @@ public class Booking extends BaseEntity {
     private List<BookingOption> bookingOptions;
 
     public static final int MAX_BOOKING_DAYS = 90;
-    public static final int MAX_COUNT_OPTION = 10;
+    public static final int MAX_COUNT_OPTIONS = 10;
 
     public Booking(LocalDate startDate, LocalDate endDate, Room room, Customer customer) {
+        validateDates(startDate, endDate);
         this.createdAt = LocalDateTime.now();
         this.startDate = startDate;
         this.endDate = endDate;
@@ -82,10 +84,12 @@ public class Booking extends BaseEntity {
     }
 
     public void setStartDate(LocalDate startDate) {
+        validateDates(startDate, this.endDate);
         this.startDate = startDate;
     }
 
     public void setEndDate(LocalDate endDate) {
+        validateDates(this.startDate, endDate);
         this.endDate = endDate;
     }
 
@@ -106,6 +110,24 @@ public class Booking extends BaseEntity {
     }
 
     public void setBookingOptions(List<BookingOption> bookingOptions) {
+        validateBookingOptions(bookingOptions);
         this.bookingOptions = bookingOptions;
+    }
+
+
+    private void validateDates(LocalDate startDate, LocalDate endDate) {
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("startDate cannot be after endDate");
+        }
+
+        if (ChronoUnit.DAYS.between(startDate, endDate) > MAX_BOOKING_DAYS) {
+            throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than" + MAX_BOOKING_DAYS +  "days");
+        }
+    }
+
+    private void validateBookingOptions(List<BookingOption> bookingOptions) {
+        if (bookingOptions.size() > MAX_COUNT_OPTIONS) {
+            throw new IllegalArgumentException("Exceeded maximum number of BookingOptions (" + MAX_COUNT_OPTIONS + ")");
+        }
     }
 }
