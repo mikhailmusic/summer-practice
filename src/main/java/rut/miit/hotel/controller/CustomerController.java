@@ -5,6 +5,8 @@ import rut.miit.hotel.dto.request.CustomerRequestDto;
 import rut.miit.hotel.dto.response.CustomerResponseDto;
 import rut.miit.hotel.service.CustomerService;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/customers")
@@ -16,7 +18,7 @@ public class CustomerController {
     }
 
     @GetMapping()
-    public Iterable<CustomerResponseDto> getAllUsers() {
+    public List<CustomerResponseDto> getAllUsers() {
         return customerService.findAll();
     }
 

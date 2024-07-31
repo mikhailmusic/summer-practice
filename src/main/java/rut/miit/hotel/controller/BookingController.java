@@ -1,6 +1,5 @@
 package rut.miit.hotel.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rut.miit.hotel.dto.request.BookingRequestDto;
 import rut.miit.hotel.dto.response.BookingResponseDto;
@@ -16,14 +15,14 @@ public class BookingController {
     }
 
     @PostMapping("")
-    public ResponseEntity<BookingResponseDto> createBooking(@RequestBody BookingRequestDto bookingRequestDto) {
-        return ResponseEntity.ok(bookingService.createBooking(bookingRequestDto));
+    public BookingResponseDto createBooking(@RequestBody BookingRequestDto bookingRequestDto) {
+        return bookingService.createBooking(bookingRequestDto);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BookingResponseDto> cancelBooking(@PathVariable Integer id) {
-        return ResponseEntity.ok(bookingService.cancelBooking(id));
+    public BookingResponseDto cancelBooking(@PathVariable Integer id) {
+        return bookingService.cancelBooking(id);
     }
 
 }
