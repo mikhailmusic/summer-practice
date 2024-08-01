@@ -20,7 +20,7 @@ public class HotelController {
     }
 
     @GetMapping()
-    public List<HotelResponseDto> findAvailableHotels(
+    public List<HotelResponseDto> searchAvailableHotelsAndRooms(
             @RequestParam String country, @RequestParam String city,
             @RequestParam LocalDate startDate, @RequestParam LocalDate endDate,
             @RequestParam(required = false) Integer capacity, @RequestParam(required = false) Integer maxPrice,

@@ -116,12 +116,13 @@ public class Booking extends BaseEntity {
 
 
     private void validateDates(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) return;
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("startDate cannot be after endDate");
         }
 
         if (ChronoUnit.DAYS.between(startDate, endDate) > MAX_BOOKING_DAYS) {
-            throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than" + MAX_BOOKING_DAYS +  "days");
+            throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than " + MAX_BOOKING_DAYS +  " days");
         }
     }
 

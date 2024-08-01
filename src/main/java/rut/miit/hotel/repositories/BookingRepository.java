@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface BookingRepository {
     Optional<Booking> findById(Integer id);
     Booking save(Booking booking);
+    Booking update(Booking booking);
     List<Booking> findByCustomerDateRangeStatuses(Customer customer, LocalDate startDate, LocalDate endDate, List<BookingStatus> statuses);
     List<Booking> findBookingsWithFailedPayments(Customer customer, List<PaymentStatus> statuses);
     List<Booking> findBookingsByRoomAndDateRange(Room room, LocalDate startDate, LocalDate endDate);

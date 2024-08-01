@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface PaymentRepository {
     Optional<Payment> findById(Integer id);
     Payment save(Payment payment);
-
+    Payment update(Payment payment);
     List<Payment> findPaymentsByBookingAndStatuses(Booking booking, List<PaymentStatus> statuses);
 
 }

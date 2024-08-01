@@ -1,12 +1,15 @@
 package rut.miit.hotel.repositories;
 
 import rut.miit.hotel.domain.HotelOption;
+import rut.miit.hotel.domain.Option;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface HotelOptionRepository {
     Optional<HotelOption> findById(Integer id);
-    List<HotelOption> findHotelOptionsByHotelId(Integer hotelId);
-    List<HotelOption> findOptionsByCustomer(Integer customerId);
+    List<HotelOption> findByHotelId(Integer hotelId);
+    List<HotelOption> findByHotelIdAndOptions(Integer hotelId, Set<Option> options);
+    List<HotelOption> findByCustomer(Integer customerId);
 }

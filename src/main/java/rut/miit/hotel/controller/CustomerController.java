@@ -18,17 +18,17 @@ public class CustomerController {
     }
 
     @GetMapping()
-    public List<CustomerResponseDto> getAllUsers() {
+    public List<CustomerResponseDto> all() {
         return customerService.findAll();
     }
 
     @GetMapping("/{id}")
-    public CustomerResponseDto getById(@PathVariable("id") Integer id) {
+    public CustomerResponseDto one(@PathVariable("id") Integer id) {
         return customerService.findCustomer(id);
     }
 
     @PostMapping()
-    public CustomerResponseDto create(@RequestBody CustomerRequestDto customerRequestDto) {
+    public CustomerResponseDto newCustomer(@RequestBody CustomerRequestDto customerRequestDto) {
         return customerService.register(customerRequestDto);
     }
 

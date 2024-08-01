@@ -24,34 +24,26 @@ public class HotelOptionDomainServiceImpl implements HotelOptionDomainService {
 
     @Override
     public List<HotelOptionResponseDto> recommendOptions(Integer customerId, Integer hotelId){
+        List<HotelOption> hotelOptionsCustomer = hotelOptionRepository.findByCustomer(customerId);
 
-        List<HotelOption> hotelOptionsCustomer = hotelOptionRepository.findOptionsByCustomer(customerId);
-        List<HotelOption> hotelOptions = hotelOptionRepository.findHotelOptionsByHotelId(hotelId);
-
-        // Calculate the frequency of each 'Option' used by the client
         Map<Option, Long> optionFrequency = hotelOptionsCustomer.stream()
                 .collect(Collectors.groupingBy(HotelOption::getOption, Collectors.counting()));
 
-        // Filter 'Options' based on the most frequently used by the client
-        List<Option> frequentOptions = optionFrequency.entrySet().stream()
-                .sorted(Map.Entry.<Option, Long>comparingByValue().reversed())
-                .map(Map.Entry::getKey)
-                .toList();
+        List<HotelOption> filteredHotelOptions = hotelOptionRepository.findByHotelIdAndOptions(hotelId, optionFrequency.keySet());
 
-        return hotelOptions.stream()
-                .filter(ho -> frequentOptions.contains(ho.getOption()))
+        filteredHotelOptions.sort((ho1, ho2) -> optionFrequency.get(ho2.getOption()).compareTo(optionFrequency.get(ho1.getOption())));
+
+        return filteredHotelOptions.stream()
                 .map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
-
     }
-
 
     @Override
     public List<HotelOptionResponseDto> findAll(Integer id) {
-        return hotelOptionRepository.findHotelOptionsByHotelId(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
+        return hotelOptionRepository.findByHotelId(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
     }
 
     @Override
     public List<HotelOptionResponseDto> findByCustomer(Integer id) {
-        return hotelOptionRepository.findOptionsByCustomer(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
+        return hotelOptionRepository.findByCustomer(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
     }
 }
