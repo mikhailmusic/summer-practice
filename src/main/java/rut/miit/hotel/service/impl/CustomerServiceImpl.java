@@ -2,6 +2,7 @@ package rut.miit.hotel.service.impl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rut.miit.hotel.domain.Customer;
 import rut.miit.hotel.dto.request.CustomerRequestDto;
 import rut.miit.hotel.dto.response.CustomerResponseDto;
@@ -31,6 +32,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Transactional
     public CustomerResponseDto register(CustomerRequestDto customerRequestDto) {
         Customer customer = modelMapper.map(customerRequestDto, Customer.class);
         return modelMapper.map(customerRepository.save(customer), CustomerResponseDto.class);

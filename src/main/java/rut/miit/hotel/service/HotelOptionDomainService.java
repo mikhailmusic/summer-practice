@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface HotelOptionDomainService {
     List<HotelOptionResponseDto> recommendOptions(Integer customer, Integer hotel);
-    List<HotelOptionResponseDto> findAll(Integer id);
+    List<HotelOptionResponseDto> findByHotel(Integer id);
     List<HotelOptionResponseDto> findByCustomer(Integer id);
 }

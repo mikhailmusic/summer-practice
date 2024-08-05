@@ -16,12 +16,12 @@ import java.util.List;
 public class HotelDomainServiceImpl implements HotelDomainService {
 
     private final HotelRepository hotelRepository;
-    private final BookingDomainServiceImpl BookingDomainService;
+    private final BookingDomainServiceImpl bookingDomainService;
     private final ModelMapper modelMapper;
 
     public HotelDomainServiceImpl(HotelRepository hotelRepository, BookingDomainServiceImpl bookingService, ModelMapper modelMapper) {
         this.hotelRepository = hotelRepository;
-        this.BookingDomainService = bookingService;
+        this.bookingDomainService = bookingService;
         this.modelMapper = modelMapper;
     }
 
@@ -29,11 +29,11 @@ public class HotelDomainServiceImpl implements HotelDomainService {
     public List<HotelResponseDto> findAvailableHotelsAndRooms(LocalDate startDate, LocalDate endDate, Integer capacity,
                                                               Integer maxPrice, String country, String city, Integer rating) {
 
-        List<Hotel> hotels = hotelRepository.findByCountryAndCityAndRating(country, city, rating);
+        List<Hotel> hotels = hotelRepository.findByAttributes(country, city, rating);
         List<HotelResponseDto> availableHotelsDto = new ArrayList<>();
         for (Hotel hotel : hotels) {
             List<RoomResponseDto> availableRooms = hotel.getRooms().stream()
-                    .filter(room -> BookingDomainService.isRoomAvailable(room, startDate, endDate))
+                    .filter(room -> bookingDomainService.isRoomAvailable(room, startDate, endDate))
                     .filter(room -> capacity == null || room.getCapacity() >= capacity)
                     .filter(room -> maxPrice == null || room.getPricePerNight().compareTo(maxPrice) <= 0)
                     .map(room -> modelMapper.map(room, RoomResponseDto.class))

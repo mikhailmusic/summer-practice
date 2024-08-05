@@ -8,7 +8,6 @@ import rut.miit.hotel.domain.Payment;
 import rut.miit.hotel.domain.status.PaymentStatus;
 import rut.miit.hotel.repositories.PaymentRepository;
 
-import java.util.List;
 
 @Repository
 public class PaymentRepositoryImpl extends BaseRepository<Payment, Integer> implements PaymentRepository {
@@ -19,9 +18,9 @@ public class PaymentRepositoryImpl extends BaseRepository<Payment, Integer> impl
         super(Payment.class);
     }
 
-    public List<Payment> findPaymentsByBookingAndStatuses(Booking booking, List<PaymentStatus> statuses) {
-        return entityManager.createQuery("SELECT p FROM Payment p WHERE p.booking = :booking AND p.status IN :statuses", Payment.class)
-                .setParameter("booking", booking).setParameter("statuses", statuses)
-                .getResultList();
+    public Payment findByBookingAndStatus(Booking booking, PaymentStatus status) {
+        return entityManager.createQuery("SELECT p FROM Payment p WHERE p.booking = :booking AND p.status = :status", Payment.class)
+                .setParameter("booking", booking).setParameter("status", status)
+                .getSingleResult();
     }
 }

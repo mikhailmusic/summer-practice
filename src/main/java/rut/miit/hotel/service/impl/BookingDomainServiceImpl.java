@@ -54,15 +54,15 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         LocalDate endDate = bookingRequestDto.getEndDate();
 
         if (!isRoomAvailable(room, startDate, endDate)) {
-            throw new CheckFailedException("The room is already booked for the specified dates or is not valid");
+            throw new CheckFailedException("Room is already booked for the specified dates or is not valid");
         }
         if (hasBookingInRange(customer, startDate, endDate)) {
-            throw new CheckFailedException("Customer already has a booking in the selected period");
+            throw new CheckFailedException("Customer already has a booking (paid or unpaid) for the selected period");
         }
         Booking booking = new Booking(startDate, endDate, room, customer);
 
         List<BookingOption> bookingOptions = new ArrayList<>();
-        if (!bookingRequestDto.getBookingOptions().isEmpty()){
+        if (bookingRequestDto.getBookingOptions() != null){
 
             for (BookingOptionRequestDto dto : bookingRequestDto.getBookingOptions()) {
                 HotelOption hotelOption = hotelOptionRepository.findById(dto.getHotelOptionId())
@@ -83,14 +83,14 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         return modelMapper.map(booking, BookingResponseDto.class);
     }
 
-    public boolean hasBookingInRange(Customer customer, LocalDate startDate, LocalDate endDate) {
-        List<Booking> overlappingBookings = bookingRepository.findByCustomerDateRangeStatuses(customer, startDate, endDate, List.of(BookingStatus.COMPLETED));
+    protected boolean hasBookingInRange(Customer customer, LocalDate startDate, LocalDate endDate) {
+        List<Booking> overlappingBookings = bookingRepository.findByCustomerDateRangeStatuses(customer, startDate, endDate, List.of(BookingStatus.CREATED, BookingStatus.COMPLETED));
         return !overlappingBookings.isEmpty();
     }
 
-    public boolean isRoomAvailable(Room room, LocalDate startDate, LocalDate endDate) {
+    protected boolean isRoomAvailable(Room room, LocalDate startDate, LocalDate endDate) {
         if (!room.isFunctional()) return false;
-        List<Booking> bookings = bookingRepository.findBookingsByRoomAndDateRange(room, startDate, endDate);
+        List<Booking> bookings = bookingRepository.findByRoomAndDateRange(room, startDate, endDate);
         for (Booking booking : bookings) {
             if (isBookingActive(booking)) {
                 return false;
@@ -99,7 +99,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         return true;
     }
 
-    public boolean isBookingActive(Booking booking) {
+    protected boolean isBookingActive(Booking booking) {
         BookingStatus status = booking.getBookingStatus();
         LocalDateTime createdAt = booking.getCreatedAt();
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -107,7 +107,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
                 status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, currentDateTime) < BOOKING_TIMEOUT_MINUTES;
     }
 
-    public double calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions) {
+    protected double calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions) {
         long days = ChronoUnit.DAYS.between(startDate, endDate);
         double total = room.getPricePerNight() * days;
 
@@ -124,54 +124,52 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     public BookingResponseDto cancelBooking(Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
 
-        LocalDateTime nowDate = LocalDateTime.now();
-        LocalDateTime startDate = booking.getStartDate().atTime(booking.getRoom().getHotel().getCheckInTime());
+        switch (booking.getBookingStatus()) {
+            case CANCELLED -> throw new CheckFailedException("Booking is already cancelled");
+            case CREATED -> {
+                Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.CREATED);
+                oldPayment.setStatus(PaymentStatus.CANCELLED);
+                paymentRepository.update(oldPayment);
+            }
+            case COMPLETED -> {
+                LocalDateTime startDateTime = booking.getStartDate().atTime(booking.getRoom().getHotel().getCheckInTime());
+                boolean isWithinTimeFrame =  LocalDateTime.now().plusHours(FREE_CANCEL_HOURS).isBefore(startDateTime);
 
-        boolean isWithinTimeFrame = nowDate.plusHours(FREE_CANCEL_HOURS).isBefore(startDate);
-        boolean isBookingExpired = nowDate.isAfter(booking.getEndDate().atTime(booking.getRoom().getHotel().getCheckOutTime()));
+                double penaltyAmount = 0;
+                if (!isWithinTimeFrame) {
+                    long days = ChronoUnit.DAYS.between(LocalDate.now(), booking.getEndDate());
+                    if (days <= 0) throw new CheckFailedException("Booking cannot be refunded as the booking period has ended");
 
-        if (isBookingExpired) {
-            throw new CheckFailedException("Booking cannot be refunded as the booking period has ended.");
+                    penaltyAmount = booking.getRoom().getPricePerNight() * (days + PENALTY_DAYS);
+                }
+                Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.COMPLETED);
+                Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, LocalDateTime.now(),
+                        oldPayment.getBankName(), oldPayment.getBankAccount(), PaymentStatus.RETURNED, booking);
+                paymentRepository.save(payment);
+
+            }
+            default -> throw new CheckFailedException("Booking is invalid");
         }
 
-        if (!isWithinTimeFrame) {
-            double pricePerNight = booking.getRoom().getPricePerNight();
-            long days = ChronoUnit.DAYS.between(nowDate, startDate);
-            refundPayment(booking, pricePerNight * (days + PENALTY_DAYS));
-
-        } else {
-            refundPayment(booking, 0);
-        }
-
-        booking.setBookingStatus(BookingStatus.CANCELED);
+        booking.setBookingStatus(BookingStatus.CANCELLED);
         bookingRepository.update(booking);
 
         return modelMapper.map(booking, BookingResponseDto.class);
 
     }
 
-    @Transactional
-    protected void refundPayment(Booking booking, double penaltyAmount) {
-        if (booking.getBookingStatus().equals(BookingStatus.CREATED)){
-            Payment oldPayment = paymentRepository.findPaymentsByBookingAndStatuses(booking, List.of(PaymentStatus.CREATED)).getFirst();
-            oldPayment.setStatus(PaymentStatus.CANCELED);
-            paymentRepository.update(oldPayment);
-            return;
-        }
-
-        Payment oldPayment = paymentRepository.findPaymentsByBookingAndStatuses(booking, List.of(PaymentStatus.COMPLETED)).getFirst();
-        Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, oldPayment.getBankName(), oldPayment.getBankAccount(), booking);
-        payment.setBooking(booking);
-        payment.setDateOfPayment(LocalDateTime.now());
-        payment.setStatus(PaymentStatus.RETURNED);
-        paymentRepository.save(payment);
-    }
-
     @Override
     @Transactional
     public void payPayment(PaymentRequestDto paymentRequestDto) {
         Payment payment = paymentRepository.findById(paymentRequestDto.getId()).orElseThrow(() -> new EntityNotFoundException("Payment not found"));
-//        if (isBookingExpired(payment.getBooking())) throw new CheckFailedException("Booking created for specified time has already ended");
+        Booking booking = payment.getBooking();
+
+        if (!(booking.getBookingStatus().equals(BookingStatus.CREATED))) {
+            throw new CheckFailedException("Booking is cancelled or already paid");
+        }
+        if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= BOOKING_TIMEOUT_MINUTES) {
+            throw new CheckFailedException("Payment is required within " + BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
+        }
 
         payment.setBankName(paymentRequestDto.getBankName());
         payment.setBankAccount(paymentRequestDto.getBankAccount());
@@ -180,7 +178,6 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         payment.setDateOfPayment(LocalDateTime.now());
         paymentRepository.update(payment);
 
-        Booking booking = payment.getBooking();
         booking.setBookingStatus(BookingStatus.COMPLETED);
         bookingRepository.update(booking);
     }

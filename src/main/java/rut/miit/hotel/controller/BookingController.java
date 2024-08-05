@@ -14,7 +14,7 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @PostMapping("")
+    @PostMapping()
     public BookingResponseDto createBooking(@RequestBody BookingRequestDto bookingRequestDto) {
         return bookingService.createBooking(bookingRequestDto);
 

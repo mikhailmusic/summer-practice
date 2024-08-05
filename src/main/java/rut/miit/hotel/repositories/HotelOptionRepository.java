@@ -11,5 +11,5 @@ public interface HotelOptionRepository {
     Optional<HotelOption> findById(Integer id);
     List<HotelOption> findByHotelId(Integer hotelId);
     List<HotelOption> findByHotelIdAndOptions(Integer hotelId, Set<Option> options);
-    List<HotelOption> findByCustomer(Integer customerId);
+    List<HotelOption> findByCustomerId(Integer customerId);
 }

@@ -24,7 +24,7 @@ public class HotelOptionDomainServiceImpl implements HotelOptionDomainService {
 
     @Override
     public List<HotelOptionResponseDto> recommendOptions(Integer customerId, Integer hotelId){
-        List<HotelOption> hotelOptionsCustomer = hotelOptionRepository.findByCustomer(customerId);
+        List<HotelOption> hotelOptionsCustomer = hotelOptionRepository.findByCustomerId(customerId);
 
         Map<Option, Long> optionFrequency = hotelOptionsCustomer.stream()
                 .collect(Collectors.groupingBy(HotelOption::getOption, Collectors.counting()));
@@ -38,12 +38,12 @@ public class HotelOptionDomainServiceImpl implements HotelOptionDomainService {
     }
 
     @Override
-    public List<HotelOptionResponseDto> findAll(Integer id) {
+    public List<HotelOptionResponseDto> findByHotel(Integer id) {
         return hotelOptionRepository.findByHotelId(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
     }
 
     @Override
     public List<HotelOptionResponseDto> findByCustomer(Integer id) {
-        return hotelOptionRepository.findByCustomer(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
+        return hotelOptionRepository.findByCustomerId(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
     }
 }

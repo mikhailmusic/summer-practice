@@ -127,7 +127,7 @@ public class Booking extends BaseEntity {
     }
 
     private void validateBookingOptions(List<BookingOption> bookingOptions) {
-        if (bookingOptions.size() > MAX_COUNT_OPTIONS) {
+        if (bookingOptions != null && bookingOptions.size() > MAX_COUNT_OPTIONS) {
             throw new IllegalArgumentException("Exceeded maximum number of BookingOptions (" + MAX_COUNT_OPTIONS + ")");
         }
     }

@@ -7,7 +7,6 @@ import rut.miit.hotel.domain.Booking;
 import rut.miit.hotel.domain.Customer;
 import rut.miit.hotel.domain.Room;
 import rut.miit.hotel.domain.status.BookingStatus;
-import rut.miit.hotel.domain.status.PaymentStatus;
 import rut.miit.hotel.repositories.BookingRepository;
 
 import java.time.LocalDate;
@@ -30,15 +29,8 @@ public class BookingRepositoryImpl extends BaseRepository<Booking, Integer> impl
                 .getResultList();
     }
 
-    // новые бронирования с определенными статусами
-    public List<Booking> findBookingsWithFailedPayments(Customer customer, List<PaymentStatus> statuses) {
-        return entityManager.createQuery("SELECT b FROM Booking b JOIN b.payments p WHERE p.status IN :statuses AND b.customer = :customer ORDER BY b.createdAt DESC", Booking.class)
-                .setParameter("customer", customer).setParameter("statuses", statuses)
-                .getResultList();
-    }
-
     // Получение бронирований комнаты на указанные даты
-    public List<Booking> findBookingsByRoomAndDateRange(Room room, LocalDate startDate, LocalDate endDate){
+    public List<Booking> findByRoomAndDateRange(Room room, LocalDate startDate, LocalDate endDate){
         return entityManager.createQuery("SELECT b FROM Booking b WHERE b.room = :room AND b.startDate < :endDate AND b.endDate > :startDate", Booking.class)
                 .setParameter("room", room).setParameter("startDate", startDate).setParameter("endDate", endDate)
                 .getResultList();

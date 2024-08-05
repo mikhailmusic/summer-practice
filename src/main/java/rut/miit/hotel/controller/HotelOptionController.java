@@ -25,7 +25,7 @@ public class HotelOptionController {
 
     @GetMapping("/hotels/{id}")
     public List<HotelOptionResponseDto> hotelOptions(@PathVariable Integer id) {
-        return hotelOptionService.findAll(id);
+        return hotelOptionService.findByHotel(id);
     }
 
     @GetMapping("/customers/{id}")

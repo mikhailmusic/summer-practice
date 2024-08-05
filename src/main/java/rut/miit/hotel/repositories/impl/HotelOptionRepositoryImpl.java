@@ -33,7 +33,7 @@ public class HotelOptionRepositoryImpl extends BaseRepository<HotelOption, Integ
     }
 
     // найти все опции отеля, которые клиент добавлял к брони
-    public List<HotelOption> findByCustomer(@Param("customerId") Integer customerId) {
+    public List<HotelOption> findByCustomerId(@Param("customerId") Integer customerId) {
         return entityManager.createQuery("SELECT ho FROM Customer c JOIN c.bookings b JOIN b.bookingOptions bo " +
                 "JOIN bo.hotelOption ho WHERE c.id = :customerId", HotelOption.class)
                 .setParameter("customerId", customerId)
