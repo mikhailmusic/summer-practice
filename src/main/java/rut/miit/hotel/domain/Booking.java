@@ -126,7 +126,7 @@ public class Booking extends BaseEntity {
         if (startDate.isAfter(endDate) || startDate.isEqual(endDate)) {
             throw new IllegalArgumentException("startDate cannot be after endDate");
         }
-        LocalDate today = LocalDate .now();
+        LocalDate today = LocalDate.now();
         if (startDate.isBefore(today) || endDate.isAfter(today.plusYears(1))) {
             throw new IllegalArgumentException("Booking period must be within one year");
         }
