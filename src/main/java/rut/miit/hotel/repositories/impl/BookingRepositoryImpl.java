@@ -23,7 +23,7 @@ public class BookingRepositoryImpl extends BaseRepository<Booking, Integer> impl
 
     // Поиск бронирований клиента в определенном диапазоне дат
     public List<Booking> findByCustomerDateRangeStatuses(Customer customer, LocalDate startDate, LocalDate endDate, List<BookingStatus> statuses){
-        return entityManager.createQuery("SELECT b FROM Booking b WHERE b.customer = :customer AND b.startDate < :endDate AND b.endDate > :startDate AND b.bookingStatus IN :statuses", Booking.class)
+        return entityManager.createQuery("SELECT b FROM Booking b WHERE b.customer = :customer AND b.startDate < :endDate AND b.endDate > :startDate AND b.status IN :statuses", Booking.class)
                 .setParameter("customer", customer).setParameter("startDate", startDate).setParameter("endDate", endDate)
                 .setParameter("statuses", statuses)
                 .getResultList();

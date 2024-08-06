@@ -100,7 +100,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     }
 
     protected boolean isBookingActive(Booking booking) {
-        BookingStatus status = booking.getBookingStatus();
+        BookingStatus status = booking.getStatus();
         LocalDateTime createdAt = booking.getCreatedAt();
         LocalDateTime currentDateTime = LocalDateTime.now();
         return status.equals(BookingStatus.COMPLETED) ||
@@ -124,7 +124,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     public BookingResponseDto cancelBooking(Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
 
-        switch (booking.getBookingStatus()) {
+        switch (booking.getStatus()) {
             case CANCELLED -> throw new CheckFailedException("Booking is already cancelled");
             case CREATED -> {
                 Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.CREATED);
@@ -151,7 +151,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
             default -> throw new CheckFailedException("Booking is invalid");
         }
 
-        booking.setBookingStatus(BookingStatus.CANCELLED);
+        booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.update(booking);
 
         return modelMapper.map(booking, BookingResponseDto.class);
@@ -164,7 +164,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         Payment payment = paymentRepository.findById(paymentRequestDto.getId()).orElseThrow(() -> new EntityNotFoundException("Payment not found"));
         Booking booking = payment.getBooking();
 
-        if (!(booking.getBookingStatus().equals(BookingStatus.CREATED))) {
+        if (!(booking.getStatus().equals(BookingStatus.CREATED))) {
             throw new CheckFailedException("Booking is cancelled or already paid");
         }
         if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= BOOKING_TIMEOUT_MINUTES) {
@@ -178,7 +178,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         payment.setDateOfPayment(LocalDateTime.now());
         paymentRepository.update(payment);
 
-        booking.setBookingStatus(BookingStatus.COMPLETED);
+        booking.setStatus(BookingStatus.COMPLETED);
         bookingRepository.update(booking);
     }
 

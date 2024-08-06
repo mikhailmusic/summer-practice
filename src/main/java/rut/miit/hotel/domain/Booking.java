@@ -14,7 +14,7 @@ public class Booking extends BaseEntity {
     private LocalDateTime createdAt;
     private LocalDate startDate;
     private LocalDate endDate;
-    private BookingStatus bookingStatus;
+    private BookingStatus status;
     private Room room;
     private Customer customer;
     private List<Payment> payments;
@@ -28,7 +28,7 @@ public class Booking extends BaseEntity {
         this.createdAt = LocalDateTime.now();
         this.startDate = startDate;
         this.endDate = endDate;
-        this.bookingStatus = BookingStatus.CREATED;
+        this.status = BookingStatus.CREATED;
         this.room = room;
         this.customer = customer;
     }
@@ -51,10 +51,10 @@ public class Booking extends BaseEntity {
         return endDate;
     }
 
-    @Column(name = "booking_status", nullable = false)
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    public BookingStatus getBookingStatus() {
-        return bookingStatus;
+    public BookingStatus getStatus() {
+        return status;
     }
 
     @ManyToOne(optional = false)
@@ -93,8 +93,8 @@ public class Booking extends BaseEntity {
         this.endDate = endDate;
     }
 
-    public void setBookingStatus(BookingStatus bookingStatus) {
-        this.bookingStatus = bookingStatus;
+    public void setStatus(BookingStatus status) {
+        this.status = status;
     }
 
     public void setRoom(Room room) {
