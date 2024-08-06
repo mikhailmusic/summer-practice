@@ -84,12 +84,16 @@ public class Booking extends BaseEntity {
     }
 
     public void setStartDate(LocalDate startDate) {
-        validateDates(startDate, this.endDate);
+        if (this.endDate != null) {
+            validateDates(startDate, this.endDate);
+        }
         this.startDate = startDate;
     }
 
     public void setEndDate(LocalDate endDate) {
-        validateDates(this.startDate, endDate);
+        if (this.startDate != null) {
+            validateDates(this.startDate, endDate);
+        }
         this.endDate = endDate;
     }
 
@@ -116,11 +120,16 @@ public class Booking extends BaseEntity {
 
 
     private void validateDates(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null || endDate == null) return;
-        if (startDate.isAfter(endDate)) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null");
+        }
+        if (startDate.isAfter(endDate) || startDate.isEqual(endDate)) {
             throw new IllegalArgumentException("startDate cannot be after endDate");
         }
-
+        LocalDate today = LocalDate .now();
+        if (startDate.isBefore(today) || endDate.isAfter(today.plusYears(1))) {
+            throw new IllegalArgumentException("Booking period must be within one year");
+        }
         if (ChronoUnit.DAYS.between(startDate, endDate) > MAX_BOOKING_DAYS) {
             throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than " + MAX_BOOKING_DAYS +  " days");
         }
