@@ -23,8 +23,8 @@ public class HotelController {
     public List<HotelResponseDto> availableHotelsAndRooms(
             @RequestParam String country, @RequestParam String city,
             @RequestParam LocalDate startDate, @RequestParam LocalDate endDate,
-            @RequestParam(required = false) Integer capacity, @RequestParam(required = false) Integer maxPrice,
-            @RequestParam(required = false) Integer rating) {
+            @RequestParam(required = false) Byte capacity, @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(required = false) Byte rating) {
 
         return hotelService
                 .findAvailableHotelsAndRooms(startDate, endDate, capacity, maxPrice, country, city, rating);

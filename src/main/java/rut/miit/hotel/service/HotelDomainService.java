@@ -6,6 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface HotelDomainService {
-    List<HotelResponseDto> findAvailableHotelsAndRooms(LocalDate startDate, LocalDate endDate, Integer capacity,
-                                                       Integer maxPrice, String country, String city, Integer rating);
+    List<HotelResponseDto> findAvailableHotelsAndRooms(LocalDate startDate, LocalDate endDate, Byte capacity,
+                                                       Integer maxPrice, String country, String city, Byte rating);
 }

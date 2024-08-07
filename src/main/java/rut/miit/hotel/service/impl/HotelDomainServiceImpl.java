@@ -26,8 +26,8 @@ public class HotelDomainServiceImpl implements HotelDomainService {
     }
 
     @Override
-    public List<HotelResponseDto> findAvailableHotelsAndRooms(LocalDate startDate, LocalDate endDate, Integer capacity,
-                                                              Integer maxPrice, String country, String city, Integer rating) {
+    public List<HotelResponseDto> findAvailableHotelsAndRooms(LocalDate startDate, LocalDate endDate, Byte capacity,
+                                                              Integer maxPrice, String country, String city, Byte rating) {
 
         List<Hotel> hotels = hotelRepository.findByAttributes(country, city, rating);
         List<HotelResponseDto> availableHotelsDto = new ArrayList<>();

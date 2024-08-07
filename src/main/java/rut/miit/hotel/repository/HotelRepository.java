@@ -6,5 +6,5 @@ import java.util.List;
 
 
 public interface HotelRepository {
-    List<Hotel> findByAttributes(String country, String city, Integer rating);
+    List<Hotel> findByAttributes(String country, String city, Byte rating);
 }
