@@ -20,7 +20,7 @@ public class HotelOptionController {
 
     @GetMapping("/hotels/{hotelId}/customers/{customerId}")
     public List<HotelOptionResponseDto> recommendOptions(@PathVariable Integer hotelId, @PathVariable Integer customerId) {
-        return hotelOptionService.recommendOptions(customerId, hotelId);
+        return hotelOptionService.getRecommendOptions(customerId, hotelId);
     }
 
     @GetMapping("/hotels/{id}")

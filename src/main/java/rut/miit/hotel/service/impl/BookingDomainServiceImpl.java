@@ -11,7 +11,7 @@ import rut.miit.hotel.dto.request.BookingRequestDto;
 import rut.miit.hotel.dto.request.PaymentRequestDto;
 import rut.miit.hotel.dto.response.BookingResponseDto;
 import rut.miit.hotel.exception.EntityNotFoundException;
-import rut.miit.hotel.exception.CheckFailedException;
+import rut.miit.hotel.exception.ValidationFailedException;
 import rut.miit.hotel.repository.*;
 import rut.miit.hotel.service.BookingDomainService;
 
@@ -54,10 +54,10 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         LocalDate endDate = bookingRequestDto.getEndDate();
 
         if (!isRoomAvailable(room, startDate, endDate)) {
-            throw new CheckFailedException("Room is already booked for the specified dates or is not valid");
+            throw new ValidationFailedException("Room is already booked for the specified dates or is not valid");
         }
         if (hasBookingInRange(customer, startDate, endDate)) {
-            throw new CheckFailedException("Customer already has a booking (paid or unpaid) for the selected period");
+            throw new ValidationFailedException("Customer already has a booking (paid or unpaid) for the selected period");
         }
         Booking booking = new Booking(startDate, endDate, room, customer);
 
@@ -68,7 +68,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
                 HotelOption hotelOption = hotelOptionRepository.findById(dto.getHotelOptionId())
                         .orElseThrow(() -> new EntityNotFoundException("Hotel option not found"));
 
-                if (!hotelOption.getHotel().getId().equals(room.getHotel().getId())) throw new CheckFailedException("HotelOption incorrect");
+                if (!hotelOption.getHotel().getId().equals(room.getHotel().getId())) throw new ValidationFailedException("HotelOption incorrect");
                 bookingOptions.add(new BookingOption(booking, hotelOption, dto.getCount()));
             }
             booking.setBookingOptions(bookingOptions);
@@ -125,7 +125,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
 
         switch (booking.getStatus()) {
-            case CANCELLED -> throw new CheckFailedException("Booking is already cancelled");
+            case CANCELLED -> throw new ValidationFailedException("Booking is already cancelled");
             case CREATED -> {
                 Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.CREATED);
                 oldPayment.setStatus(PaymentStatus.CANCELLED);
@@ -138,7 +138,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
                 double penaltyAmount = 0;
                 if (!isWithinTimeFrame) {
                     long days = ChronoUnit.DAYS.between(LocalDate.now(), booking.getEndDate());
-                    if (days <= 0) throw new CheckFailedException("Booking cannot be refunded as the booking period has ended");
+                    if (days <= 0) throw new ValidationFailedException("Booking cannot be refunded as the booking period has ended");
 
                     penaltyAmount = booking.getRoom().getPricePerNight() * (days + PENALTY_DAYS);
                 }
@@ -148,7 +148,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
                 paymentRepository.save(payment);
 
             }
-            default -> throw new CheckFailedException("Booking is invalid");
+            default -> throw new ValidationFailedException("Booking is invalid");
         }
 
         booking.setStatus(BookingStatus.CANCELLED);
@@ -165,10 +165,10 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         Booking booking = payment.getBooking();
 
         if (!(booking.getStatus().equals(BookingStatus.CREATED))) {
-            throw new CheckFailedException("Booking is cancelled or already paid");
+            throw new ValidationFailedException("Booking is cancelled or already paid");
         }
         if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= BOOKING_TIMEOUT_MINUTES) {
-            throw new CheckFailedException("Payment is required within " + BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
+            throw new ValidationFailedException("Payment is required within " + BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
         }
 
         payment.setBankName(paymentRequestDto.getBankName());

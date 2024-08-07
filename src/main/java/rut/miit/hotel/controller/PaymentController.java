@@ -13,8 +13,8 @@ public class PaymentController {
         this.bookingDomainService = bookingDomainService;
     }
 
-    @PatchMapping()
-    public void pay(@RequestBody PaymentRequestDto paymentRequestDto) {
+    @PatchMapping("/confirm")
+    public void confirmPayment(@RequestBody PaymentRequestDto paymentRequestDto) {
         bookingDomainService.payPayment(paymentRequestDto);
     }
 }

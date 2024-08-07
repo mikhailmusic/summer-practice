@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import rut.miit.hotel.exception.EntityNotFoundException;
 
 @RestControllerAdvice
-public class NotFoundAdvice {
+public class EntityNotFoundAdvice {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String notFoundHandler(EntityNotFoundException ex) {

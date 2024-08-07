@@ -19,15 +19,15 @@ public class HotelController {
         this.hotelService = hotelService;
     }
 
-    @GetMapping()
-    public List<HotelResponseDto> searchAvailableHotelsAndRooms(
+    @GetMapping("/available")
+    public List<HotelResponseDto> availableHotelsAndRooms(
             @RequestParam String country, @RequestParam String city,
             @RequestParam LocalDate startDate, @RequestParam LocalDate endDate,
             @RequestParam(required = false) Integer capacity, @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) Integer rating) {
 
-        return hotelService.
-                findAvailableHotelsAndRooms(startDate, endDate, capacity, maxPrice, country, city, rating);
+        return hotelService
+                .findAvailableHotelsAndRooms(startDate, endDate, capacity, maxPrice, country, city, rating);
 
     }
 }

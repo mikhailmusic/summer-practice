@@ -23,7 +23,7 @@ public class HotelOptionDomainServiceImpl implements HotelOptionDomainService {
     }
 
     @Override
-    public List<HotelOptionResponseDto> recommendOptions(Integer customerId, Integer hotelId){
+    public List<HotelOptionResponseDto> getRecommendOptions(Integer customerId, Integer hotelId){
         List<HotelOption> hotelOptionsCustomer = hotelOptionRepository.findByCustomerId(customerId);
 
         Map<Option, Long> optionFrequency = hotelOptionsCustomer.stream()
