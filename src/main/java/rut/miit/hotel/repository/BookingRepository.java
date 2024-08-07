@@ -1,4 +1,4 @@
-package rut.miit.hotel.repositories;
+package rut.miit.hotel.repository;
 
 import rut.miit.hotel.domain.Booking;
 import rut.miit.hotel.domain.Customer;

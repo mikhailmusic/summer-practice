@@ -1,4 +1,4 @@
-package rut.miit.hotel.repositories.impl;
+package rut.miit.hotel.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -6,7 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import rut.miit.hotel.domain.HotelOption;
 import rut.miit.hotel.domain.Option;
-import rut.miit.hotel.repositories.HotelOptionRepository;
+import rut.miit.hotel.repository.HotelOptionRepository;
 
 import java.util.List;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package rut.miit.hotel.repositories.impl;
+package rut.miit.hotel.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -7,7 +7,7 @@ import rut.miit.hotel.domain.Booking;
 import rut.miit.hotel.domain.Customer;
 import rut.miit.hotel.domain.Room;
 import rut.miit.hotel.domain.status.BookingStatus;
-import rut.miit.hotel.repositories.BookingRepository;
+import rut.miit.hotel.repository.BookingRepository;
 
 import java.time.LocalDate;
 import java.util.List;

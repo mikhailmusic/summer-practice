@@ -12,7 +12,7 @@ import rut.miit.hotel.dto.request.PaymentRequestDto;
 import rut.miit.hotel.dto.response.BookingResponseDto;
 import rut.miit.hotel.exception.EntityNotFoundException;
 import rut.miit.hotel.exception.CheckFailedException;
-import rut.miit.hotel.repositories.*;
+import rut.miit.hotel.repository.*;
 import rut.miit.hotel.service.BookingDomainService;
 
 import java.time.LocalDate;

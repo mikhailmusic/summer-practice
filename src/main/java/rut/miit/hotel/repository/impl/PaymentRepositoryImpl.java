@@ -1,4 +1,4 @@
-package rut.miit.hotel.repositories.impl;
+package rut.miit.hotel.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import rut.miit.hotel.domain.Booking;
 import rut.miit.hotel.domain.Payment;
 import rut.miit.hotel.domain.status.PaymentStatus;
-import rut.miit.hotel.repositories.PaymentRepository;
+import rut.miit.hotel.repository.PaymentRepository;
 
 
 @Repository

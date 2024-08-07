@@ -1,8 +1,7 @@
-package rut.miit.hotel.repositories.impl;
+package rut.miit.hotel.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.util.List;
 import java.util.Optional;
 
 public abstract class BaseRepository<T, ID> {
@@ -28,7 +27,4 @@ public abstract class BaseRepository<T, ID> {
         return Optional.ofNullable(entityManager.find(entityClass, id));
     }
 
-    public List<T> findAll() {
-        return entityManager.createQuery("from " + entityClass.getName(), entityClass).getResultList();
-    }
 }

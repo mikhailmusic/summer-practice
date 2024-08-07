@@ -1,8 +1,8 @@
-package rut.miit.hotel.repositories.impl;
+package rut.miit.hotel.repository.impl;
 
 import org.springframework.stereotype.Repository;
 import rut.miit.hotel.domain.Room;
-import rut.miit.hotel.repositories.RoomRepository;
+import rut.miit.hotel.repository.RoomRepository;
 
 
 @Repository

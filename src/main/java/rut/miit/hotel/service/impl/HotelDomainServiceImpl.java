@@ -6,7 +6,7 @@ import rut.miit.hotel.domain.Hotel;
 import rut.miit.hotel.dto.response.HotelResponseDto;
 import rut.miit.hotel.dto.response.RoomResponseDto;
 import rut.miit.hotel.service.HotelDomainService;
-import rut.miit.hotel.repositories.HotelRepository;
+import rut.miit.hotel.repository.HotelRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

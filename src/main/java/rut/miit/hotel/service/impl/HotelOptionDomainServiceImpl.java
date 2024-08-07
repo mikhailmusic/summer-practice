@@ -6,7 +6,7 @@ import rut.miit.hotel.domain.HotelOption;
 import rut.miit.hotel.domain.Option;
 import rut.miit.hotel.dto.response.HotelOptionResponseDto;
 import rut.miit.hotel.service.HotelOptionDomainService;
-import rut.miit.hotel.repositories.HotelOptionRepository;
+import rut.miit.hotel.repository.HotelOptionRepository;
 
 import java.util.List;
 import java.util.Map;
