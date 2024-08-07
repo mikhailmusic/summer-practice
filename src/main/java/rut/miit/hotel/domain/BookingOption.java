@@ -30,7 +30,7 @@ public class BookingOption extends BaseEntity {
         return hotelOption;
     }
 
-    @Column(name = "count")
+    @Column(name = "count", nullable = false)
     public Byte getCount() {
         return count;
     }

@@ -6,7 +6,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "room_types")
@@ -29,7 +28,7 @@ public class RoomType extends BaseEntity{
         return name;
     }
 
-    @Column(name = "description")
+    @Column(name = "description", length = 1500)
     public String getDescription() {
         return description;
     }

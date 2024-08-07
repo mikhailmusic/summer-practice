@@ -53,7 +53,7 @@ public class Room extends BaseEntity {
         return type;
     }
 
-    @Column(name = "number_of_rooms")
+    @Column(name = "number_of_rooms", nullable = false)
     public Byte getNumberOfRooms() {
         return numberOfRooms;
     }
@@ -63,7 +63,7 @@ public class Room extends BaseEntity {
         return description;
     }
 
-    @Column(name = "functional", nullable = false)
+    @Column(name = "is_functional", nullable = false)
     public boolean isFunctional() {
         return isFunctional;
     }
