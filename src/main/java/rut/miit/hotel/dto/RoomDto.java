@@ -1,7 +1,7 @@
-package rut.miit.hotel.dto.response;
+package rut.miit.hotel.dto;
 
 
-public class RoomResponseDto {
+public class RoomDto {
     private Integer id;
     private Integer roomNumber;
     private Byte capacity;

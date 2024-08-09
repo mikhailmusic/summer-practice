@@ -6,10 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import rut.miit.hotel.domain.*;
 import rut.miit.hotel.domain.status.BookingStatus;
 import rut.miit.hotel.domain.status.PaymentStatus;
-import rut.miit.hotel.dto.request.BookingOptionRequestDto;
-import rut.miit.hotel.dto.request.BookingRequestDto;
-import rut.miit.hotel.dto.request.PaymentRequestDto;
-import rut.miit.hotel.dto.response.BookingResponseDto;
+import rut.miit.hotel.dto.BookingDto;
+import rut.miit.hotel.dto.BookingOptionDto;
+import rut.miit.hotel.dto.PaymentDto;
 import rut.miit.hotel.exception.EntityNotFoundException;
 import rut.miit.hotel.exception.ValidationFailedException;
 import rut.miit.hotel.repository.*;
@@ -47,11 +46,11 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     @Override
     @Transactional
-    public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
-        Customer customer = customerRepository.findById(bookingRequestDto.getCustomerId()).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-        Room room = roomRepository.findById(bookingRequestDto.getRoomId()).orElseThrow(() -> new EntityNotFoundException("Room not found"));
-        LocalDate startDate = bookingRequestDto.getStartDate();
-        LocalDate endDate = bookingRequestDto.getEndDate();
+    public BookingDto createBooking(BookingDto bookingDto) {
+        Customer customer = customerRepository.findById(bookingDto.getCustomerId()).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        Room room = roomRepository.findById(bookingDto.getRoomId()).orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        LocalDate startDate = bookingDto.getStartDate();
+        LocalDate endDate = bookingDto.getEndDate();
 
         if (!isRoomAvailable(room, startDate, endDate)) {
             throw new ValidationFailedException("Room is already booked for the specified dates or is not valid");
@@ -62,9 +61,9 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         Booking booking = new Booking(startDate, endDate, room, customer);
 
         List<BookingOption> bookingOptions = new ArrayList<>();
-        if (bookingRequestDto.getBookingOptions() != null){
+        if (bookingDto.getBookingOptions() != null){
 
-            for (BookingOptionRequestDto dto : bookingRequestDto.getBookingOptions()) {
+            for (BookingOptionDto dto : bookingDto.getBookingOptions()) {
                 HotelOption hotelOption = hotelOptionRepository.findById(dto.getHotelOptionId())
                         .orElseThrow(() -> new EntityNotFoundException("Hotel option not found"));
 
@@ -80,7 +79,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         booking.setPayments(List.of(payment));
         bookingRepository.save(booking);
 
-        return modelMapper.map(booking, BookingResponseDto.class);
+        return modelMapper.map(booking, BookingDto.class);
     }
 
     protected boolean hasBookingInRange(Customer customer, LocalDate startDate, LocalDate endDate) {
@@ -121,7 +120,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     @Override
     @Transactional
-    public BookingResponseDto cancelBooking(Integer bookingId) {
+    public BookingDto cancelBooking(Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
 
         switch (booking.getStatus()) {
@@ -154,14 +153,14 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.update(booking);
 
-        return modelMapper.map(booking, BookingResponseDto.class);
+        return modelMapper.map(booking, BookingDto.class);
 
     }
 
     @Override
     @Transactional
-    public void payPayment(PaymentRequestDto paymentRequestDto) {
-        Payment payment = paymentRepository.findById(paymentRequestDto.getId()).orElseThrow(() -> new EntityNotFoundException("Payment not found"));
+    public void payPayment(PaymentDto paymentDto) {
+        Payment payment = paymentRepository.findById(paymentDto.getId()).orElseThrow(() -> new EntityNotFoundException("Payment not found"));
         Booking booking = payment.getBooking();
 
         if (!(booking.getStatus().equals(BookingStatus.CREATED))) {
@@ -171,8 +170,8 @@ public class BookingDomainServiceImpl implements BookingDomainService {
             throw new ValidationFailedException("Payment is required within " + BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
         }
 
-        payment.setBankName(paymentRequestDto.getBankName());
-        payment.setBankAccount(paymentRequestDto.getBankAccount());
+        payment.setBankName(paymentDto.getBankName());
+        payment.setBankAccount(paymentDto.getBankAccount());
 
         payment.setStatus(PaymentStatus.COMPLETED);
         payment.setDateOfPayment(LocalDateTime.now());

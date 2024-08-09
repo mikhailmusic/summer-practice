@@ -1,15 +1,28 @@
-package rut.miit.hotel.dto.request;
+package rut.miit.hotel.dto;
 
+
+import rut.miit.hotel.domain.status.BookingStatus;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public class BookingRequestDto {
+public class BookingDto {
+    private Integer id;
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer roomId;
     private Integer customerId;
-    private List<BookingOptionRequestDto> bookingOptions;
+    private BookingStatus bookingStatus;
+    private List<PaymentDto> payments;
+    private List<BookingOptionDto> bookingOptions;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public LocalDate getStartDate() {
         return startDate;
@@ -43,11 +56,27 @@ public class BookingRequestDto {
         this.customerId = customerId;
     }
 
-    public List<BookingOptionRequestDto> getBookingOptions() {
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
+
+    public List<PaymentDto> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentDto> payments) {
+        this.payments = payments;
+    }
+
+    public List<BookingOptionDto> getBookingOptions() {
         return bookingOptions;
     }
 
-    public void setBookingOptions(List<BookingOptionRequestDto> bookingOptions) {
+    public void setBookingOptions(List<BookingOptionDto> bookingOptions) {
         this.bookingOptions = bookingOptions;
     }
 }

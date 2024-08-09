@@ -1,8 +1,7 @@
 package rut.miit.hotel.controller;
 
 import org.springframework.web.bind.annotation.*;
-import rut.miit.hotel.dto.request.BookingRequestDto;
-import rut.miit.hotel.dto.response.BookingResponseDto;
+import rut.miit.hotel.dto.BookingDto;
 import rut.miit.hotel.service.BookingDomainService;
 
 @RestController
@@ -15,13 +14,13 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingResponseDto createBooking(@RequestBody BookingRequestDto bookingRequestDto) {
-        return bookingService.createBooking(bookingRequestDto);
+    public BookingDto createBooking(@RequestBody BookingDto bookingDto) {
+        return bookingService.createBooking(bookingDto);
 
     }
 
     @DeleteMapping("/{id}")
-    public BookingResponseDto cancelBooking(@PathVariable Integer id) {
+    public BookingDto cancelBooking(@PathVariable Integer id) {
         return bookingService.cancelBooking(id);
     }
 

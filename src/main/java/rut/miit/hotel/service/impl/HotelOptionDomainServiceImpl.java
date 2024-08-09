@@ -4,7 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import rut.miit.hotel.domain.HotelOption;
 import rut.miit.hotel.domain.Option;
-import rut.miit.hotel.dto.response.HotelOptionResponseDto;
+import rut.miit.hotel.dto.HotelOptionDto;
 import rut.miit.hotel.service.HotelOptionDomainService;
 import rut.miit.hotel.repository.HotelOptionRepository;
 
@@ -23,7 +23,7 @@ public class HotelOptionDomainServiceImpl implements HotelOptionDomainService {
     }
 
     @Override
-    public List<HotelOptionResponseDto> getRecommendOptions(Integer customerId, Integer hotelId){
+    public List<HotelOptionDto> getRecommendOptions(Integer customerId, Integer hotelId){
         List<HotelOption> hotelOptionsCustomer = hotelOptionRepository.findByCustomerId(customerId);
 
         Map<Option, Long> optionFrequency = hotelOptionsCustomer.stream()
@@ -34,16 +34,16 @@ public class HotelOptionDomainServiceImpl implements HotelOptionDomainService {
         filteredHotelOptions.sort((ho1, ho2) -> optionFrequency.get(ho2.getOption()).compareTo(optionFrequency.get(ho1.getOption())));
 
         return filteredHotelOptions.stream()
-                .map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
+                .map(e -> modelMapper.map(e, HotelOptionDto.class)).toList();
     }
 
     @Override
-    public List<HotelOptionResponseDto> findByHotel(Integer id) {
-        return hotelOptionRepository.findByHotelId(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
+    public List<HotelOptionDto> findByHotel(Integer id) {
+        return hotelOptionRepository.findByHotelId(id).stream().map(e -> modelMapper.map(e, HotelOptionDto.class)).toList();
     }
 
     @Override
-    public List<HotelOptionResponseDto> findByCustomer(Integer id) {
-        return hotelOptionRepository.findByCustomerId(id).stream().map(e -> modelMapper.map(e, HotelOptionResponseDto.class)).toList();
+    public List<HotelOptionDto> findByCustomer(Integer id) {
+        return hotelOptionRepository.findByCustomerId(id).stream().map(e -> modelMapper.map(e, HotelOptionDto.class)).toList();
     }
 }

@@ -1,10 +1,10 @@
-package rut.miit.hotel.dto.response;
+package rut.miit.hotel.dto;
 
 import rut.miit.hotel.domain.status.PaymentStatus;
 
 import java.time.LocalDateTime;
 
-public class PaymentResponseDto {
+public class PaymentDto {
     private Integer id;
     private Double amount;
     private LocalDateTime dateOfPayment;

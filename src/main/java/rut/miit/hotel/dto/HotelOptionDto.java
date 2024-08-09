@@ -1,7 +1,7 @@
-package rut.miit.hotel.dto.response;
+package rut.miit.hotel.dto;
 
 
-public class HotelOptionResponseDto {
+public class HotelOptionDto {
     private Integer id;
     private String fullName;
     private Integer price;
