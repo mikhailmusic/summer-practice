@@ -19,9 +19,8 @@ public class HotelRepositoryImpl extends BaseRepository<Hotel, Integer> implemen
     }
 
     public List<Hotel> findByAttributes(String country, String city, Byte rating) {
-        return entityManager.createQuery("SELECT h FROM Hotel h WHERE (:country IS NULL OR h.country LIKE :country) AND " +
-                "(:city IS NULL OR h.city LIKE :city) AND " +
-                "(:rating IS NULL OR h.rating = :rating)", Hotel.class)
+        return entityManager.createQuery("SELECT h FROM Hotel h WHERE h.country LIKE :country AND " +
+                "h.city LIKE :city AND (:rating IS NULL OR h.rating = :rating)", Hotel.class)
                 .setParameter("country",country ).setParameter("city", city).setParameter("rating", rating)
                 .getResultList();
     }
