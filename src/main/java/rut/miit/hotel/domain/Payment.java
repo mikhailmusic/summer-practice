@@ -15,11 +15,12 @@ public class Payment extends BaseEntity {
     private PaymentStatus status;
     private Booking booking;
 
-    public Payment(Double amount, String bankName, String bankAccount, Booking booking) {
+    public Payment(Double amount, LocalDateTime dateOfPayment, String bankName, String bankAccount, PaymentStatus status, Booking booking) {
         this.amount = amount;
+        this.dateOfPayment = dateOfPayment;
         this.bankName = bankName;
         this.bankAccount = bankAccount;
-        this.status = PaymentStatus.CREATED;
+        this.status = status;
         this.booking = booking;
     }
 

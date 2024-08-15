@@ -1,10 +1,7 @@
-package rut.miit.hotel.repositories.impl;
+package rut.miit.hotel.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-
-import java.util.List;
 import java.util.Optional;
 
 public abstract class BaseRepository<T, ID> {
@@ -16,13 +13,13 @@ public abstract class BaseRepository<T, ID> {
         this.entityClass  = entityClass;
     }
 
-    @Transactional
     public T save(T entity) {
-        if (entityManager.contains(entity)) {
-            entityManager.merge(entity);
-        } else {
-            entityManager.persist(entity);
-        }
+        entityManager.persist(entity);
+        return entity;
+    }
+
+    public T update(T entity) {
+        entityManager.merge(entity);
         return entity;
     }
 
@@ -30,7 +27,4 @@ public abstract class BaseRepository<T, ID> {
         return Optional.ofNullable(entityManager.find(entityClass, id));
     }
 
-    public List<T> findAll() {
-        return entityManager.createQuery("from " + entityClass.getName(), entityClass).getResultList();
-    }
 }

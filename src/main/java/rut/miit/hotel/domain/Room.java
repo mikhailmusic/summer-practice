@@ -13,9 +13,7 @@ public class Room extends BaseEntity {
     private RoomType type;
     private Byte numberOfRooms;
     private String description;
-
-    // This flag can be set to false in case the room is out of order (e.g., due to maintenance issues or damages)
-    private boolean isFunctional;
+    private boolean isFunctional;       // This flag can be set to false in case the room is out of order (e.g., due to maintenance issues or damages)
     private Hotel hotel;
     private List<Booking> bookings;
 
@@ -55,7 +53,7 @@ public class Room extends BaseEntity {
         return type;
     }
 
-    @Column(name = "number_of_rooms")
+    @Column(name = "number_of_rooms", nullable = false)
     public Byte getNumberOfRooms() {
         return numberOfRooms;
     }
@@ -65,7 +63,7 @@ public class Room extends BaseEntity {
         return description;
     }
 
-    @Column(name = "functional", nullable = false)
+    @Column(name = "is_functional", nullable = false)
     public boolean isFunctional() {
         return isFunctional;
     }

@@ -14,7 +14,7 @@ public class Booking extends BaseEntity {
     private LocalDateTime createdAt;
     private LocalDate startDate;
     private LocalDate endDate;
-    private BookingStatus bookingStatus;
+    private BookingStatus status;
     private Room room;
     private Customer customer;
     private List<Payment> payments;
@@ -28,7 +28,7 @@ public class Booking extends BaseEntity {
         this.createdAt = LocalDateTime.now();
         this.startDate = startDate;
         this.endDate = endDate;
-        this.bookingStatus = BookingStatus.CREATED;
+        this.status = BookingStatus.CREATED;
         this.room = room;
         this.customer = customer;
     }
@@ -51,10 +51,10 @@ public class Booking extends BaseEntity {
         return endDate;
     }
 
-    @Column(name = "booking_status", nullable = false)
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    public BookingStatus getBookingStatus() {
-        return bookingStatus;
+    public BookingStatus getStatus() {
+        return status;
     }
 
     @ManyToOne(optional = false)
@@ -84,17 +84,21 @@ public class Booking extends BaseEntity {
     }
 
     public void setStartDate(LocalDate startDate) {
-        validateDates(startDate, this.endDate);
+        if (this.endDate != null) {
+            validateDates(startDate, this.endDate);
+        }
         this.startDate = startDate;
     }
 
     public void setEndDate(LocalDate endDate) {
-        validateDates(this.startDate, endDate);
+        if (this.startDate != null) {
+            validateDates(this.startDate, endDate);
+        }
         this.endDate = endDate;
     }
 
-    public void setBookingStatus(BookingStatus bookingStatus) {
-        this.bookingStatus = bookingStatus;
+    public void setStatus(BookingStatus status) {
+        this.status = status;
     }
 
     public void setRoom(Room room) {
@@ -116,17 +120,23 @@ public class Booking extends BaseEntity {
 
 
     private void validateDates(LocalDate startDate, LocalDate endDate) {
-        if (startDate.isAfter(endDate)) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start date and end date cannot be null");
+        }
+        if (startDate.isAfter(endDate) || startDate.isEqual(endDate)) {
             throw new IllegalArgumentException("startDate cannot be after endDate");
         }
-
+        LocalDate today = LocalDate.now();
+        if (startDate.isBefore(today) || endDate.isAfter(today.plusYears(1))) {
+            throw new IllegalArgumentException("Booking period must be within one year");
+        }
         if (ChronoUnit.DAYS.between(startDate, endDate) > MAX_BOOKING_DAYS) {
-            throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than" + MAX_BOOKING_DAYS +  "days");
+            throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than " + MAX_BOOKING_DAYS +  " days");
         }
     }
 
     private void validateBookingOptions(List<BookingOption> bookingOptions) {
-        if (bookingOptions.size() > MAX_COUNT_OPTIONS) {
+        if (bookingOptions != null && bookingOptions.size() > MAX_COUNT_OPTIONS) {
             throw new IllegalArgumentException("Exceeded maximum number of BookingOptions (" + MAX_COUNT_OPTIONS + ")");
         }
     }

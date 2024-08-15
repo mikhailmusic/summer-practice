@@ -6,13 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import rut.miit.hotel.domain.*;
 import rut.miit.hotel.domain.status.BookingStatus;
 import rut.miit.hotel.domain.status.PaymentStatus;
-import rut.miit.hotel.dto.request.BookingOptionRequestDto;
-import rut.miit.hotel.dto.request.BookingRequestDto;
-import rut.miit.hotel.dto.request.PaymentRequestDto;
-import rut.miit.hotel.dto.response.BookingResponseDto;
-import rut.miit.hotel.exception.NotFoundException;
-import rut.miit.hotel.exception.ValidationException;
-import rut.miit.hotel.repositories.*;
+import rut.miit.hotel.dto.BookingDto;
+import rut.miit.hotel.dto.BookingOptionDto;
+import rut.miit.hotel.dto.PaymentDto;
+import rut.miit.hotel.exception.EntityNotFoundException;
+import rut.miit.hotel.exception.ValidationFailedException;
+import rut.miit.hotel.repository.*;
 import rut.miit.hotel.service.BookingDomainService;
 
 import java.time.LocalDate;
@@ -34,107 +33,85 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     private final CustomerRepository customerRepository;
     private final RoomRepository roomRepository;
     private final HotelOptionRepository hotelOptionRepository;
-    private final BookingOptionRepository bookingOptionRepository;
     private final ModelMapper modelMapper;
 
-    public BookingDomainServiceImpl(BookingRepository bookingRepository, PaymentRepository paymentRepository, CustomerRepository customerRepository, RoomRepository roomRepository, HotelOptionRepository hotelOptionRepository, BookingOptionRepository bookingOptionRepository, ModelMapper modelMapper) {
+    public BookingDomainServiceImpl(BookingRepository bookingRepository, PaymentRepository paymentRepository, CustomerRepository customerRepository, RoomRepository roomRepository, HotelOptionRepository hotelOptionRepository, ModelMapper modelMapper) {
         this.bookingRepository = bookingRepository;
         this.paymentRepository = paymentRepository;
         this.customerRepository = customerRepository;
         this.roomRepository = roomRepository;
         this.hotelOptionRepository = hotelOptionRepository;
-        this.bookingOptionRepository = bookingOptionRepository;
         this.modelMapper = modelMapper;
     }
 
     @Override
     @Transactional
-    public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto) {
-        Customer customer = customerRepository.findById(bookingRequestDto.getCustomerId()).orElseThrow(() -> new NotFoundException("Customer not found"));
-        Room room = roomRepository.findById(bookingRequestDto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found"));
-        LocalDate startDate = bookingRequestDto.getStartDate();
-        LocalDate endDate = bookingRequestDto.getEndDate();
+    public BookingDto createBooking(BookingDto bookingDto) {
+        Customer customer = customerRepository.findById(bookingDto.getCustomerId()).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        Room room = roomRepository.findById(bookingDto.getRoomId()).orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        LocalDate startDate = bookingDto.getStartDate();
+        LocalDate endDate = bookingDto.getEndDate();
 
         if (!isRoomAvailable(room, startDate, endDate)) {
-            throw new ValidationException("The room is already booked for the specified dates or is not valid");
+            throw new ValidationFailedException("Room is already booked for the specified dates or is not valid");
         }
-        if (checkBookings(customer, startDate, endDate)) {
-            throw new ValidationException("The room is already booked for the specified dates");
+        if (hasBookingInRange(customer, startDate, endDate)) {
+            throw new ValidationFailedException("Customer already has a booking (paid or unpaid) for the selected period");
         }
         Booking booking = new Booking(startDate, endDate, room, customer);
-        bookingRepository.save(booking);
 
         List<BookingOption> bookingOptions = new ArrayList<>();
-        if (!bookingRequestDto.getBookingOptions().isEmpty()){
-            for (BookingOptionRequestDto dto : bookingRequestDto.getBookingOptions()) {
-                HotelOption hotelOption = hotelOptionRepository.findById(dto.getHotelOptionId())
-                        .orElseThrow(() -> new NotFoundException("Hotel option not found"));
+        if (bookingDto.getBookingOptions() != null){
 
-                if (!hotelOption.getHotel().getId().equals(room.getHotel().getId())) throw new ValidationException("HotelOption incorrect");
-                BookingOption bookingOption = new BookingOption(booking, hotelOption, dto.getCount());
-                bookingOptions.add(bookingOption);
-                bookingOptionRepository.save(bookingOption);
+            for (BookingOptionDto dto : bookingDto.getBookingOptions()) {
+                HotelOption hotelOption = hotelOptionRepository.findById(dto.getHotelOptionId())
+                        .orElseThrow(() -> new EntityNotFoundException("Hotel option not found"));
+
+                if (!hotelOption.getHotel().getId().equals(room.getHotel().getId())) throw new ValidationFailedException("HotelOption incorrect");
+                bookingOptions.add(new BookingOption(booking, hotelOption, dto.getCount()));
             }
+            booking.setBookingOptions(bookingOptions);
         }
 
         double totalPrice = calculateTotalAmount(room, startDate, endDate, bookingOptions);
         Payment payment = new Payment(totalPrice, booking);
-        paymentRepository.save(payment);
 
-        booking.setBookingOptions(bookingOptions);
         booking.setPayments(List.of(payment));
+        bookingRepository.save(booking);
 
-        return modelMapper.map(booking, BookingResponseDto.class);
+        return modelMapper.map(booking, BookingDto.class);
     }
 
-    @Override
-    public boolean checkBookings(Customer customer, LocalDate startDate, LocalDate endDate) {
-        List<Booking> overlappingBookings = bookingRepository.findByCustomerDateRangeStatuses(customer, startDate, endDate, List.of(BookingStatus.COMPLETED));
-        if (!overlappingBookings.isEmpty()) {
-            throw new ValidationException("Customer already has a booking in the selected period");
-        }
-        return false;
+    protected boolean hasBookingInRange(Customer customer, LocalDate startDate, LocalDate endDate) {
+        List<Booking> overlappingBookings = bookingRepository.findByCustomerDateRangeStatuses(customer, startDate, endDate, List.of(BookingStatus.CREATED, BookingStatus.COMPLETED));
+        return !overlappingBookings.isEmpty();
     }
 
-    @Override
-    public boolean isRoomAvailable(Room room, LocalDate startDate, LocalDate endDate) {
+    protected boolean isRoomAvailable(Room room, LocalDate startDate, LocalDate endDate) {
         if (!room.isFunctional()) return false;
-        List<Booking> bookings = bookingRepository.findBookingsByRoomAndDateRange(room, startDate, endDate);
+        List<Booking> bookings = bookingRepository.findByRoomAndDateRange(room, startDate, endDate);
         for (Booking booking : bookings) {
-            if (booking.getBookingStatus().equals(BookingStatus.COMPLETED) || isBookingExpired(booking)) {
+            if (isBookingActive(booking)) {
                 return false;
             }
         }
         return true;
     }
 
-    @Override
-    public boolean isBookingExpired(Booking booking) {
+    protected boolean isBookingActive(Booking booking) {
+        BookingStatus status = booking.getStatus();
         LocalDateTime createdAt = booking.getCreatedAt();
         LocalDateTime currentDateTime = LocalDateTime.now();
-        boolean isExpired = booking.getBookingStatus().equals(BookingStatus.CREATED)
-                && ChronoUnit.MINUTES.between(createdAt, currentDateTime) >= BOOKING_TIMEOUT_MINUTES;
-
-        if (isExpired) {
-            booking.setBookingStatus(BookingStatus.CANCELED);
-            Payment payment = booking.getPayments().getFirst();
-            if (payment != null) {
-                payment.setStatus(PaymentStatus.EXPIRED);
-                paymentRepository.save(payment);
-            }
-            bookingRepository.save(booking);
-        }
-
-        return isExpired;
+        return status.equals(BookingStatus.COMPLETED) ||
+                status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, currentDateTime) < BOOKING_TIMEOUT_MINUTES;
     }
 
-    @Override
-    public Double calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions) {
+    protected double calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions) {
         long days = ChronoUnit.DAYS.between(startDate, endDate);
         double total = room.getPricePerNight() * days;
 
         for (BookingOption bookingOption : bookingOptions) {
-            total += (bookingOption.getHotelOption().getPrice() * bookingOption.getCount());
+            total += bookingOption.getHotelOption().getPrice() * bookingOption.getCount();
         }
         if (days > DISCOUNT_DAYS) total -= Math.floor(total * DISCOUNT_PERCENT / 100.0);
 
@@ -143,67 +120,65 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     @Override
     @Transactional
-    public BookingResponseDto cancelBooking(Integer bookingId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Booking not found"));
+    public BookingDto cancelBooking(Integer bookingId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
 
-        LocalDateTime nowDate = LocalDateTime.now();
-        LocalDateTime startDate = booking.getStartDate().atTime(booking.getRoom().getHotel().getCheckInTime());
+        switch (booking.getStatus()) {
+            case CANCELLED -> throw new ValidationFailedException("Booking is already cancelled");
+            case CREATED -> {
+                Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.CREATED);
+                oldPayment.setStatus(PaymentStatus.CANCELLED);
+                paymentRepository.update(oldPayment);
+            }
+            case COMPLETED -> {
+                LocalDateTime startDateTime = booking.getStartDate().atTime(booking.getRoom().getHotel().getCheckInTime());
+                boolean isWithinTimeFrame =  LocalDateTime.now().plusHours(FREE_CANCEL_HOURS).isBefore(startDateTime);
 
-        boolean isWithinTimeFrame = nowDate.plusHours(FREE_CANCEL_HOURS).isBefore(startDate);
-        boolean isBookingExpired = nowDate.isAfter(booking.getEndDate().atTime(booking.getRoom().getHotel().getCheckOutTime()));
+                double penaltyAmount = 0;
+                if (!isWithinTimeFrame) {
+                    long days = ChronoUnit.DAYS.between(LocalDate.now(), booking.getEndDate());
+                    if (days <= 0) throw new ValidationFailedException("Booking cannot be refunded as the booking period has ended");
 
-        if (isBookingExpired) {
-            throw new ValidationException("Booking cannot be refunded as the booking period has ended.");
+                    penaltyAmount = booking.getRoom().getPricePerNight() * (days + PENALTY_DAYS);
+                }
+                Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.COMPLETED);
+                Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, LocalDateTime.now(),
+                        oldPayment.getBankName(), oldPayment.getBankAccount(), PaymentStatus.RETURNED, booking);
+                paymentRepository.save(payment);
+
+            }
+            default -> throw new ValidationFailedException("Booking is invalid");
         }
 
-        if (!isWithinTimeFrame) {
-            double pricePerNight = booking.getRoom().getPricePerNight();
-            long days = ChronoUnit.DAYS.between(nowDate, startDate);
-            refundPayment(booking, pricePerNight * (days + PENALTY_DAYS));
+        booking.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.update(booking);
 
-        } else {
-            refundPayment(booking, 0);
-        }
+        return modelMapper.map(booking, BookingDto.class);
 
-        booking.setBookingStatus(BookingStatus.CANCELED);
-        bookingRepository.save(booking);
-
-        return modelMapper.map(booking, BookingResponseDto.class);
-
-    }
-
-    @Transactional
-    protected void refundPayment(Booking booking, double penaltyAmount) {
-        if (booking.getBookingStatus().equals(BookingStatus.CREATED)){
-            Payment oldPayment = paymentRepository.findPaymentsByBookingAndStatuses(booking, List.of(PaymentStatus.CREATED)).getFirst();
-            oldPayment.setStatus(PaymentStatus.CANCELED);
-            paymentRepository.save(oldPayment);
-            return;
-        }
-
-        Payment oldPayment = paymentRepository.findPaymentsByBookingAndStatuses(booking, List.of(PaymentStatus.COMPLETED)).getFirst();
-        Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, oldPayment.getBankName(), oldPayment.getBankAccount(), booking);
-        payment.setBooking(booking);
-        payment.setDateOfPayment(LocalDateTime.now());
-        payment.setStatus(PaymentStatus.RETURNED);
-        paymentRepository.save(payment);
     }
 
     @Override
     @Transactional
-    public void payPayment(PaymentRequestDto paymentRequestDto) {
-        Payment payment = paymentRepository.findById(paymentRequestDto.getId()).orElseThrow(() -> new NotFoundException("Payment not found"));
-        if (isBookingExpired(payment.getBooking())) throw new ValidationException("Booking created for specified time has already ended");
+    public void payPayment(PaymentDto paymentDto) {
+        Payment payment = paymentRepository.findById(paymentDto.getId()).orElseThrow(() -> new EntityNotFoundException("Payment not found"));
+        Booking booking = payment.getBooking();
 
-        payment.setBankName(paymentRequestDto.getBankName());
-        payment.setBankAccount(paymentRequestDto.getBankAccount());
+        if (!(booking.getStatus().equals(BookingStatus.CREATED))) {
+            throw new ValidationFailedException("Booking is cancelled or already paid");
+        }
+        if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= BOOKING_TIMEOUT_MINUTES) {
+            throw new ValidationFailedException("Payment is required within " + BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
+        }
+
+        payment.setBankName(paymentDto.getBankName());
+        payment.setBankAccount(paymentDto.getBankAccount());
+
         payment.setStatus(PaymentStatus.COMPLETED);
         payment.setDateOfPayment(LocalDateTime.now());
-        paymentRepository.save(payment);
+        paymentRepository.update(payment);
 
-        Booking booking = payment.getBooking();
-        booking.setBookingStatus(BookingStatus.COMPLETED);
-        bookingRepository.save(booking);
+        booking.setStatus(BookingStatus.COMPLETED);
+        bookingRepository.update(booking);
     }
 
 }

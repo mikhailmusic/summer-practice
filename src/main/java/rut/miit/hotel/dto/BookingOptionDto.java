@@ -1,7 +1,7 @@
-package rut.miit.hotel.dto.request;
+package rut.miit.hotel.dto;
 
 
-public class BookingOptionRequestDto {
+public class BookingOptionDto {
     private Integer hotelOptionId;
     private Byte count;
 

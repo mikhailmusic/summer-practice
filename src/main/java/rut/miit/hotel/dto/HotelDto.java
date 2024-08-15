@@ -1,9 +1,9 @@
-package rut.miit.hotel.dto.response;
+package rut.miit.hotel.dto;
 
 import java.time.LocalTime;
 import java.util.List;
 
-public class HotelResponseDto {
+public class HotelDto {
     private Integer id;
     private String name;
     private Byte rating;
@@ -17,7 +17,7 @@ public class HotelResponseDto {
     private String postcode;
     private LocalTime checkInTime;
     private LocalTime checkOutTime;
-    private List<RoomResponseDto> rooms;
+    private List<RoomDto> rooms;
 
     public Integer getId() {
         return id;
@@ -123,11 +123,11 @@ public class HotelResponseDto {
         this.checkOutTime = checkOutTime;
     }
 
-    public List<RoomResponseDto> getRooms() {
+    public List<RoomDto> getRooms() {
         return rooms;
     }
 
-    public void setRooms(List<RoomResponseDto> rooms) {
+    public void setRooms(List<RoomDto> rooms) {
         this.rooms = rooms;
     }
 

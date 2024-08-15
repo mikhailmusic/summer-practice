@@ -3,11 +3,10 @@ package rut.miit.hotel.service.impl;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import rut.miit.hotel.domain.Hotel;
-import rut.miit.hotel.domain.Room;
-import rut.miit.hotel.dto.response.HotelResponseDto;
-import rut.miit.hotel.service.BookingDomainService;
+import rut.miit.hotel.dto.HotelDto;
+import rut.miit.hotel.dto.RoomDto;
 import rut.miit.hotel.service.HotelDomainService;
-import rut.miit.hotel.repositories.HotelRepository;
+import rut.miit.hotel.repository.HotelRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,34 +16,36 @@ import java.util.List;
 public class HotelDomainServiceImpl implements HotelDomainService {
 
     private final HotelRepository hotelRepository;
-    private final BookingDomainService BookingDomainService;
+    private final BookingDomainServiceImpl bookingDomainService;
     private final ModelMapper modelMapper;
 
     public HotelDomainServiceImpl(HotelRepository hotelRepository, BookingDomainServiceImpl bookingService, ModelMapper modelMapper) {
         this.hotelRepository = hotelRepository;
-        this.BookingDomainService = bookingService;
+        this.bookingDomainService = bookingService;
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public List<HotelResponseDto> findAvailableHotelsAndRooms(LocalDate startDate, LocalDate endDate, Integer capacity,
-                                                              Integer maxPrice, String country, String city, Integer rating) {
+    public List<HotelDto> findAvailableHotelsAndRooms(LocalDate startDate, LocalDate endDate, Byte capacity,
+                                                      Integer maxPrice, String country, String city, Byte rating) {
 
-        List<Hotel> hotels = hotelRepository.findByCountryAndCityAndRating(country, city, rating);
-        List<Hotel> availableHotels = new ArrayList<>();
+        List<Hotel> hotels = hotelRepository.findByAttributes(country, city, rating);
+        List<HotelDto> availableHotelsDto = new ArrayList<>();
         for (Hotel hotel : hotels) {
-            List<Room> rooms = hotel.getRooms().stream()
-                    .filter(room -> BookingDomainService.isRoomAvailable(room, startDate, endDate))
+            List<RoomDto> availableRooms = hotel.getRooms().stream()
+                    .filter(room -> bookingDomainService.isRoomAvailable(room, startDate, endDate))
                     .filter(room -> capacity == null || room.getCapacity() >= capacity)
                     .filter(room -> maxPrice == null || room.getPricePerNight().compareTo(maxPrice) <= 0)
+                    .map(room -> modelMapper.map(room, RoomDto.class))
                     .toList();
 
-            if (!rooms.isEmpty()) {
-                hotel.setRooms(rooms);
-                availableHotels.add(hotel);
+            if (!availableRooms.isEmpty()) {
+                HotelDto hotelDto = modelMapper.map(hotel, HotelDto.class);
+                hotelDto.setRooms(availableRooms);
+                availableHotelsDto.add(hotelDto);
             }
         }
 
-        return availableHotels.stream().map(e -> modelMapper.map(e, HotelResponseDto.class)).toList();
+        return availableHotelsDto;
     }
 }

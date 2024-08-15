@@ -1,7 +1,7 @@
 package rut.miit.hotel.controller;
 
 import org.springframework.web.bind.annotation.*;
-import rut.miit.hotel.dto.request.PaymentRequestDto;
+import rut.miit.hotel.dto.PaymentDto;
 import rut.miit.hotel.service.BookingDomainService;
 
 @RestController
@@ -13,8 +13,8 @@ public class PaymentController {
         this.bookingDomainService = bookingDomainService;
     }
 
-    @PatchMapping()
-    public void pay(@RequestBody PaymentRequestDto paymentRequestDto) {
-        bookingDomainService.payPayment(paymentRequestDto);
+    @PatchMapping("/confirm")
+    public void confirmPayment(@RequestBody PaymentDto paymentDto) {
+        bookingDomainService.payPayment(paymentDto);
     }
 }

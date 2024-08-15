@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  postgres:
+    container_name: hotel-booking
+    image: 'postgres:16.3'
+    environment:
+      POSTGRES_DB: hotel
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin4-8.9
+    image: dpage/pgadmin4:8.9
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres@mail.ru
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  postgres:
+  pgadmin-data:
