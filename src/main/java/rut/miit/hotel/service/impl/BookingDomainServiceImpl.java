@@ -89,22 +89,22 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     protected boolean isRoomAvailable(Room room, LocalDate startDate, LocalDate endDate) {
         if (!room.isFunctional()) return false;
+
         List<Booking> bookings = bookingRepository.findByRoomAndDateRange(room, startDate, endDate);
+        LocalDateTime currentDateTime = LocalDateTime.now();
         for (Booking booking : bookings) {
-            if (isBookingActive(booking)) {
+            BookingStatus status = booking.getStatus();
+            LocalDateTime createdAt = booking.getCreatedAt();
+
+            boolean isRoomOccupied = status.equals(BookingStatus.COMPLETED) ||
+                    status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, currentDateTime) < BOOKING_TIMEOUT_MINUTES;
+            if (isRoomOccupied) {
                 return false;
             }
         }
         return true;
     }
 
-    protected boolean isBookingActive(Booking booking) {
-        BookingStatus status = booking.getStatus();
-        LocalDateTime createdAt = booking.getCreatedAt();
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        return status.equals(BookingStatus.COMPLETED) ||
-                status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, currentDateTime) < BOOKING_TIMEOUT_MINUTES;
-    }
 
     protected double calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions) {
         long days = ChronoUnit.DAYS.between(startDate, endDate);
