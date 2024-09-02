@@ -31,6 +31,7 @@ public class HotelOptionDomainServiceImpl implements HotelOptionDomainService {
 
         List<HotelOption> filteredHotelOptions = hotelOptionRepository.findByHotelIdAndOptions(hotelId, optionFrequency.keySet());
 
+        // сортировка по числу заказов
         filteredHotelOptions.sort((ho1, ho2) -> optionFrequency.get(ho2.getOption()).compareTo(optionFrequency.get(ho1.getOption())));
 
         return filteredHotelOptions.stream()
