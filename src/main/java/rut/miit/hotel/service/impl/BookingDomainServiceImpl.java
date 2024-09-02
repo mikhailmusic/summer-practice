@@ -22,11 +22,6 @@ import java.util.List;
 
 @Service
 public class BookingDomainServiceImpl implements BookingDomainService {
-    public static final int DISCOUNT_DAYS = 20;
-    public static final int DISCOUNT_PERCENT = 10;
-    public static final int FREE_CANCEL_HOURS = 24;
-    public static final int PENALTY_DAYS = 1;
-    public static final int BOOKING_TIMEOUT_MINUTES = 60;
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
     private final CustomerRepository customerRepository;
@@ -95,7 +90,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
             LocalDateTime createdAt = booking.getCreatedAt();
 
             boolean isRoomOccupied = status.equals(BookingStatus.COMPLETED) ||
-                    status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, currentDateTime) < BOOKING_TIMEOUT_MINUTES;
+                    status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, currentDateTime) < Booking.BOOKING_TIMEOUT_MINUTES;
             if (isRoomOccupied) {
                 return false;
             }
@@ -111,7 +106,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         for (BookingOption bookingOption : bookingOptions) {
             total += bookingOption.getHotelOption().getPrice() * bookingOption.getCount();
         }
-        if (days > DISCOUNT_DAYS) total -= Math.floor(total * DISCOUNT_PERCENT / 100.0);
+        if (days > 20) total -= Math.floor(total * 0.1);
 
         return total;
     }
@@ -129,14 +124,14 @@ public class BookingDomainServiceImpl implements BookingDomainService {
             }
             case COMPLETED -> {
                 LocalDateTime startDateTime = booking.getStartDate().atTime(booking.getRoom().getHotel().getCheckInTime());
-                boolean isWithinTimeFrame =  LocalDateTime.now().plusHours(FREE_CANCEL_HOURS).isBefore(startDateTime);
+                boolean isWithinTimeFrame =  LocalDateTime.now().plusHours(24).isBefore(startDateTime);
 
                 double penaltyAmount = 0;
                 if (!isWithinTimeFrame) {
                     long days = ChronoUnit.DAYS.between(LocalDate.now(), booking.getEndDate());
                     if (days <= 0) throw new ValidationException("Booking cannot be refunded as the booking period has ended");
 
-                    penaltyAmount = booking.getRoom().getPricePerNight() * (days + PENALTY_DAYS);
+                    penaltyAmount = booking.getRoom().getPricePerNight() * (days + 1);
                 }
                 Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.COMPLETED);
                 Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, LocalDateTime.now(),
@@ -162,8 +157,8 @@ public class BookingDomainServiceImpl implements BookingDomainService {
         if (!(booking.getStatus().equals(BookingStatus.CREATED))) {
             throw new ValidationException("Booking is cancelled or already paid");
         }
-        if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= BOOKING_TIMEOUT_MINUTES) {
-            throw new ValidationException("Payment is required within " + BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
+        if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= Booking.BOOKING_TIMEOUT_MINUTES) {
+            throw new ValidationException("Payment is required within " + Booking.BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
         }
 
         payment.setBankName(paymentDto.getBankName());
