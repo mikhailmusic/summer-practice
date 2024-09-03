@@ -3,8 +3,7 @@ package rut.miit.hotel.dto;
 import java.time.LocalTime;
 import java.util.List;
 
-public class HotelDto {
-    private Integer id;
+public class HotelDto extends IdDto{
     private String name;
     private Byte rating;
     private String phoneNumber;
@@ -18,14 +17,6 @@ public class HotelDto {
     private LocalTime checkInTime;
     private LocalTime checkOutTime;
     private List<RoomDto> rooms;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

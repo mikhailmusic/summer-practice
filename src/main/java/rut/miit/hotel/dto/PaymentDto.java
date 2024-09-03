@@ -4,21 +4,12 @@ import rut.miit.hotel.domain.status.PaymentStatus;
 
 import java.time.LocalDateTime;
 
-public class PaymentDto {
-    private Integer id;
+public class PaymentDto extends IdDto{
     private Double amount;
     private LocalDateTime dateOfPayment;
     private String bankName;
     private String bankAccount;
     private PaymentStatus status;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public Double getAmount() {
         return amount;

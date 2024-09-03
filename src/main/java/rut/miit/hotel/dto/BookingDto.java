@@ -6,8 +6,7 @@ import rut.miit.hotel.domain.status.BookingStatus;
 import java.time.LocalDate;
 import java.util.List;
 
-public class BookingDto {
-    private Integer id;
+public class BookingDto extends IdDto{
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer roomId;
@@ -15,14 +14,6 @@ public class BookingDto {
     private BookingStatus bookingStatus;
     private List<PaymentDto> payments;
     private List<BookingOptionDto> bookingOptions;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public LocalDate getStartDate() {
         return startDate;

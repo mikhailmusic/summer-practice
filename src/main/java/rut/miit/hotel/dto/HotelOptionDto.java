@@ -1,20 +1,11 @@
 package rut.miit.hotel.dto;
 
 
-public class HotelOptionDto {
-    private Integer id;
+public class HotelOptionDto extends IdDto{
     private String fullName;
     private Integer price;
     private String description;
     private String optionName;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getFullName() {
         return fullName;

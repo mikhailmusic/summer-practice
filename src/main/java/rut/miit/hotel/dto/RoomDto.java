@@ -1,22 +1,13 @@
 package rut.miit.hotel.dto;
 
 
-public class RoomDto {
-    private Integer id;
+public class RoomDto extends IdDto{
     private Integer roomNumber;
     private Byte capacity;
     private Integer pricePerNight;
     private Byte numberOfRooms;
     private String description;
     private String roomTypeName;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public Integer getRoomNumber() {
         return roomNumber;
