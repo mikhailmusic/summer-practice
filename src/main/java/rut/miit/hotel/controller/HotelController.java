@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rut.miit.hotel.dto.HotelDto;
+import rut.miit.hotel.dto.HotelSearchDto;
 import rut.miit.hotel.service.HotelDomainService;
 
 import java.time.LocalDate;
@@ -26,8 +27,10 @@ public class HotelController {
             @RequestParam(required = false) Byte capacity, @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) Byte rating) {
 
+        HotelSearchDto hotelSearchDto = new HotelSearchDto(country, city, startDate, endDate, capacity, maxPrice, rating);
+
         return hotelService
-                .findAvailableHotelsAndRooms(startDate, endDate, capacity, maxPrice, country, city, rating);
+                .findAvailableHotelsAndRooms(hotelSearchDto);
 
     }
 }
