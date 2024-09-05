@@ -82,16 +82,9 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     boolean isRoomAvailable(Room room, LocalDate startDate, LocalDate endDate) {
         if (!room.isFunctional()) return false;
-
         List<Booking> bookings = bookingRepository.findByRoomAndDateRange(room, startDate, endDate);
-        LocalDateTime currentDateTime = LocalDateTime.now();
         for (Booking booking : bookings) {
-            BookingStatus status = booking.getStatus();
-            LocalDateTime createdAt = booking.getCreatedAt();
-
-            boolean isRoomOccupied = status.equals(BookingStatus.COMPLETED) ||
-                    status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, currentDateTime) < Booking.BOOKING_TIMEOUT_MINUTES;
-            if (isRoomOccupied) {
+            if (booking.checkValid()) {
                 return false;
             }
         }
@@ -113,7 +106,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     @Override
     public BookingDto cancelBooking(Integer bookingId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException());
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException(bookingId));
 
         switch (booking.getStatus()) {
             case CANCELLED -> throw new ValidationException("Booking is already cancelled");
@@ -136,7 +129,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
                 Payment oldPayment = paymentRepository.findByBookingAndStatus(booking, PaymentStatus.COMPLETED);
                 Payment payment = new Payment(oldPayment.getAmount() - penaltyAmount, LocalDateTime.now(),
                         oldPayment.getBankName(), oldPayment.getBankAccount(), PaymentStatus.RETURNED, booking);
-                paymentRepository.save(payment);
+                booking.addPayment(payment);
 
             }
             default -> throw new ValidationException("Booking is invalid");
@@ -151,14 +144,14 @@ public class BookingDomainServiceImpl implements BookingDomainService {
 
     @Override
     public void payPayment(PaymentDto paymentDto) {
-        Payment payment = paymentRepository.findById(paymentDto.getId()).orElseThrow(() -> new PaymentNotFoundException());
+        Payment payment = paymentRepository.findById(paymentDto.getId()).orElseThrow(() -> new PaymentNotFoundException(paymentDto.getId()));
         Booking booking = payment.getBooking();
 
         if (!(booking.getStatus().equals(BookingStatus.CREATED))) {
             throw new ValidationException("Booking is cancelled or already paid");
         }
-        if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= Booking.BOOKING_TIMEOUT_MINUTES) {
-            throw new ValidationException("Payment is required within " + Booking.BOOKING_TIMEOUT_MINUTES + " minutes of booking creation");
+        if (ChronoUnit.MINUTES.between(booking.getCreatedAt(), LocalDateTime.now()) >= 60) {
+            throw new ValidationException("Payment is required within 60 minutes of booking creation");
         }
 
         payment.setBankName(paymentDto.getBankName());

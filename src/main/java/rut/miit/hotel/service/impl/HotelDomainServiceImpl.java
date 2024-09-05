@@ -2,10 +2,13 @@ package rut.miit.hotel.service.impl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import rut.miit.hotel.domain.Booking;
 import rut.miit.hotel.domain.Hotel;
+import rut.miit.hotel.domain.Room;
 import rut.miit.hotel.dto.HotelDto;
 import rut.miit.hotel.dto.HotelSearchDto;
 import rut.miit.hotel.dto.RoomDto;
+import rut.miit.hotel.repository.BookingRepository;
 import rut.miit.hotel.service.HotelDomainService;
 import rut.miit.hotel.repository.HotelRepository;
 
@@ -17,12 +20,12 @@ import java.util.List;
 public class HotelDomainServiceImpl implements HotelDomainService {
 
     private final HotelRepository hotelRepository;
-    private final BookingDomainServiceImpl bookingDomainService;
+    private final BookingRepository bookingRepository;
     private final ModelMapper modelMapper;
 
-    public HotelDomainServiceImpl(HotelRepository hotelRepository, BookingDomainServiceImpl bookingService, ModelMapper modelMapper) {
+    public HotelDomainServiceImpl(HotelRepository hotelRepository, BookingRepository bookingRepository, ModelMapper modelMapper) {
         this.hotelRepository = hotelRepository;
-        this.bookingDomainService = bookingService;
+        this.bookingRepository = bookingRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -37,7 +40,7 @@ public class HotelDomainServiceImpl implements HotelDomainService {
         LocalDate endDate = hotelSearchDto.getEndDate();
         for (Hotel hotel : hotels) {
             List<RoomDto> availableRooms = hotel.getRooms().stream()
-                    .filter(room -> bookingDomainService.isRoomAvailable(room, startDate, endDate))
+                    .filter(room -> roomAvailableForBooking(room, startDate, endDate))
                     .filter(room -> capacity == null || room.getCapacity() >= capacity)
                     .filter(room -> maxPrice == null || room.getPricePerNight().compareTo(maxPrice) <= 0)
                     .map(room -> modelMapper.map(room, RoomDto.class))
@@ -51,5 +54,10 @@ public class HotelDomainServiceImpl implements HotelDomainService {
         }
 
         return availableHotelsDto;
+    }
+    boolean roomAvailableForBooking(Room room, LocalDate startDate, LocalDate endDate) {
+        if (!room.isFunctional()) return false;
+        List<Booking> bookings = bookingRepository.findByRoomAndDateRange(room, startDate, endDate);
+        return bookings.stream().noneMatch(Booking::checkValid);
     }
 }

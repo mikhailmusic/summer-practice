@@ -20,9 +20,6 @@ public class Booking extends BaseEntity {
     private List<Payment> payments;
     private List<BookingOption> bookingOptions;
 
-    public static final int MAX_BOOKING_DAYS = 90;
-    public static final int MAX_COUNT_OPTIONS = 10;
-
     public Booking(LocalDate startDate, LocalDate endDate, Room room, Customer customer) {
         validateDates(startDate, endDate);
         this.createdAt = LocalDateTime.now();
@@ -114,7 +111,9 @@ public class Booking extends BaseEntity {
     }
 
     public void setBookingOptions(List<BookingOption> bookingOptions) {
-        validateBookingOptions(bookingOptions);
+        if (bookingOptions != null && bookingOptions.size() > 10) {
+            throw new IllegalArgumentException("Exceeded maximum number of BookingOptions: 10");
+        }
         this.bookingOptions = bookingOptions;
     }
 
@@ -130,14 +129,14 @@ public class Booking extends BaseEntity {
         if (startDate.isBefore(today) || endDate.isAfter(today.plusYears(1))) {
             throw new IllegalArgumentException("Booking period must be within one year");
         }
-        if (ChronoUnit.DAYS.between(startDate, endDate) > MAX_BOOKING_DAYS) {
-            throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than " + MAX_BOOKING_DAYS +  " days");
+        if (ChronoUnit.DAYS.between(startDate, endDate) > 90) {
+            throw new IllegalArgumentException("Difference between startDate and endDate cannot be more than 90 days");
         }
     }
 
-    private void validateBookingOptions(List<BookingOption> bookingOptions) {
-        if (bookingOptions != null && bookingOptions.size() > MAX_COUNT_OPTIONS) {
-            throw new IllegalArgumentException("Exceeded maximum number of BookingOptions (" + MAX_COUNT_OPTIONS + ")");
-        }
+    public boolean checkValid(){
+        return status.equals(BookingStatus.COMPLETED) ||
+                status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, LocalDateTime.now()) < 60;
     }
+
 }
