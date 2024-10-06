@@ -24,7 +24,7 @@ public class Option extends BaseEntity {
         return name;
     }
 
-    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "option")
     public List<HotelOption> getHotelOptions() {
         return hotelOptions;
     }

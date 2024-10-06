@@ -66,7 +66,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
             booking.setBookingOptions(bookingOptions);
         }
 
-        double totalPrice = calculateTotalAmount(room, startDate, endDate, bookingOptions);
+        long totalPrice = calculateTotalAmount(room, startDate, endDate, bookingOptions);
         Payment payment = new Payment(totalPrice, booking);
 
         booking.setPayments(Arrays.asList(payment));
@@ -92,14 +92,14 @@ public class BookingDomainServiceImpl implements BookingDomainService {
     }
 
 
-    double calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions) {
+    long calculateTotalAmount(Room room, LocalDate startDate, LocalDate endDate, List<BookingOption> bookingOptions) {
         long days = ChronoUnit.DAYS.between(startDate, endDate);
-        double total = room.getPricePerNight() * days;
+        long total = room.getPricePerNight() * days;
 
         for (BookingOption bookingOption : bookingOptions) {
             total += bookingOption.getHotelOption().getPrice() * bookingOption.getCount();
         }
-        if (days > 20) total -= Math.floor(total * 0.1);
+        if (days > 20) total -= (long) (total * 0.1);
 
         return total;
     }
@@ -119,7 +119,7 @@ public class BookingDomainServiceImpl implements BookingDomainService {
                 LocalDateTime startDateTime = booking.getStartDate().atTime(booking.getRoom().getHotel().getCheckInTime());
                 boolean isWithinTimeFrame =  LocalDateTime.now().plusHours(24).isBefore(startDateTime);
 
-                double penaltyAmount = 0;
+                long penaltyAmount = 0;
                 if (!isWithinTimeFrame) {
                     long days = ChronoUnit.DAYS.between(LocalDate.now(), booking.getEndDate());
                     if (days <= 0) throw new ValidationException("Booking cannot be refunded as the booking period has ended");

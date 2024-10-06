@@ -59,7 +59,7 @@ public class Customer extends BaseEntity {
         return birthDate;
     }
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer")
     public List<Booking> getBookings() {
         return bookings;
     }

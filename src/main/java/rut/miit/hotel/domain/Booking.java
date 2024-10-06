@@ -6,6 +6,7 @@ import rut.miit.hotel.domain.status.BookingStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,6 +29,8 @@ public class Booking extends BaseEntity {
         this.status = BookingStatus.CREATED;
         this.room = room;
         this.customer = customer;
+        this.payments = new ArrayList<>();
+        this.bookingOptions = new ArrayList<>();
     }
 
     protected Booking() {
@@ -66,12 +69,12 @@ public class Booking extends BaseEntity {
         return customer;
     }
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.PERSIST)
     public List<Payment> getPayments() {
         return payments;
     }
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.PERSIST)
     public List<BookingOption> getBookingOptions() {
         return bookingOptions;
     }
@@ -137,6 +140,21 @@ public class Booking extends BaseEntity {
     public boolean checkValid(){
         return status.equals(BookingStatus.COMPLETED) ||
                 status.equals(BookingStatus.CREATED) && ChronoUnit.MINUTES.between(createdAt, LocalDateTime.now()) < 60;
+    }
+
+    public void addPayment(Payment payment) {
+        if (payment != null && status != BookingStatus.CANCELLED) {
+            payments.add(payment);
+        } else throw new IllegalStateException("Cannot add payment to a cancelled booking");
+
+    }
+
+    public void addBookingOption(BookingOption option) {
+        if (option != null && status == BookingStatus.CREATED && bookingOptions.size() + 1 <= 10) {
+            bookingOptions.add(option);
+        }
+        else throw new IllegalStateException("Cannot add option to booking");
+
     }
 
 }

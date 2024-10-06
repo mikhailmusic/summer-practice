@@ -103,12 +103,12 @@ public class Hotel extends BaseEntity {
         return checkOutTime;
     }
 
-    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hotel")
     public List<Room> getRooms() {
         return rooms;
     }
 
-    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hotel")
     public List<HotelOption> getHotelOptions() {
         return hotelOptions;
     }

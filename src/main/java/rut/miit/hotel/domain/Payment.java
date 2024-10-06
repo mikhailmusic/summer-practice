@@ -8,14 +8,14 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "payments")
 public class Payment extends BaseEntity {
-    private Double amount;
+    private Long amount;
     private LocalDateTime dateOfPayment;
     private String bankName;
     private String bankAccount;
     private PaymentStatus status;
     private Booking booking;
 
-    public Payment(Double amount, LocalDateTime dateOfPayment, String bankName, String bankAccount, PaymentStatus status, Booking booking) {
+    public Payment(Long amount, LocalDateTime dateOfPayment, String bankName, String bankAccount, PaymentStatus status, Booking booking) {
         this.amount = amount;
         this.dateOfPayment = dateOfPayment;
         this.bankName = bankName;
@@ -24,7 +24,7 @@ public class Payment extends BaseEntity {
         this.booking = booking;
     }
 
-    public Payment(Double amount, Booking booking) {
+    public Payment(Long amount, Booking booking) {
         this.amount = amount;
         this.status = PaymentStatus.CREATED;
         this.booking = booking;
@@ -34,7 +34,7 @@ public class Payment extends BaseEntity {
     }
 
     @Column(name = "amount", nullable = false)
-    public Double getAmount() {
+    public Long getAmount() {
         return amount;
     }
 
@@ -65,7 +65,7 @@ public class Payment extends BaseEntity {
         return booking;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(Long amount) {
         this.amount = amount;
     }
 

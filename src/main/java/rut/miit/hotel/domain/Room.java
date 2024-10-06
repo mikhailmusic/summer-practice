@@ -74,7 +74,7 @@ public class Room extends BaseEntity {
         return hotel;
     }
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "room")
     public List<Booking> getBookings() {
         return bookings;
     }
